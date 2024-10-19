@@ -1,6 +1,14 @@
 #include <stdio.h>
+#include "Rodovias.h"
+#include "string.h"
 
 int main() {
-    printf("Hello, World!\n");
-    return 0;
+    lista_rodovia cabeca; //<- PONTEIRO PRA RODOVIA
+    IniciaListaRodoviaVazia(&cabeca);
+
+
+
+
+
+
 }
