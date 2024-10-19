@@ -2,4 +2,4 @@ Trabalho de Algoritmo e Estruturas de dados 1, ministrada por Maria Adriana Vidi
 
 Tema: Gerenciador de rodovias
 
-Feito por Gustavo Henrique Leal da Fonseca e Vinicius Lima de Caralho
+Feito por Gustavo Henrique Leal da Fonseca e Vinicius Tavares Martins
