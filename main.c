@@ -21,10 +21,4 @@ int main() {
     InsereCidadeEmRodovia(cabeca, 69, uberlandia);
     InsereCidadeEmRodovia(cabeca, 69, itumbiara);
     ImprimeRodovias(cabeca);
-
-
-
-
-
-
 }
