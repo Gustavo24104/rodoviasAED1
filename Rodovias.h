@@ -22,21 +22,16 @@ No mais, por enquanto pensei na cidade serem elementos e as rodovias as listas, 
 struct Cidade {
     char nome[100];
     int distanciaProx;
-    struct Cidade *prox;
-    struct Cidade *ant;
 };
 
 typedef struct Cidade city;
 
 typedef struct Rodovia {
     int codigo;
-    int Pedagio; //0 caso nao tenha
+    int pedagio; //0 caso nao tenha
 } rodovia;
 
-typedef struct noRodoviario {
-    rodovia estrada;
-    struct noRodoviario *prox;
-} nodeR; //No para lista de rodovias
+
 
 typedef struct noCidade {
     struct noCidade *prox;
@@ -44,10 +39,23 @@ typedef struct noCidade {
     struct noCidade *ant;
 } nodeC; //No para lista de cidades
 
-typedef nodeR *lista_rodovia;
 typedef nodeC *lista_cidade;
 
+typedef struct noRodoviario {
+    rodovia estrada;
+    struct noRodoviario *prox;
+    lista_cidade cidades;
+} nodeR; //No para lista de rodovias
+
+typedef nodeR *lista_rodovia;
+
+
+
 int IniciaListaRodoviaVazia(lista_rodovia *li);
+int InsereRodoviaInicio(lista_rodovia *li, rodovia rod);
+void ImprimeRodovias(lista_rodovia l);
+int InsereCidadeEmRodovia(lista_rodovia lista, int codigoRodovia, city cidade);
+
 
 
 
