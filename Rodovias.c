@@ -25,6 +25,14 @@ int InicializaCidades(lista_cidade *lc) {
     return 1;
 }
 
+int RemoveCidade(lista_cidade lc, char* nomeCidade) {
+    //
+}
+
+int RemoveRodovia(lista_rodovia lr, int codigo) {
+    //
+}
+
 
 /**
  * Insere uma rodovia na lista encadeada no inicio
@@ -152,6 +160,16 @@ int CarregaRodovias(lista_rodovia *cabeca, FILE* arq) {
         if (InsereCidadeEmRodovia(*cabeca, cod, c) == 0) return 0;
     }
     return 1;
+}
+
+/**
+ * Verifica se (e onde) duas rodovias se cruzam a partir do codigo das duas
+ * @param codigo1
+ * @param codigo2
+ * @return
+ */
+int Cruzamento(lista_rodovia lr,int codigo1, int codigo2) {
+
 }
 
 

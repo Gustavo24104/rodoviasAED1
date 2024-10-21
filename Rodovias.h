@@ -37,10 +37,8 @@ typedef nodeR *lista_rodovia;
 
 
 int IniciaListaRodoviaVazia(lista_rodovia *li);
-int InsereRodoviaInicio(lista_rodovia *li, rodovia rod);
-void ImprimeRodovias(lista_rodovia l);
-int InsereCidadeEmRodovia(lista_rodovia lista, int codigoRodovia, city cidade);
 int CarregaRodovias(lista_rodovia *cabeca, FILE* arq);
+int Cruzamento(lista_rodovia lr,int codigo1, int codigo2); //Força bruta
 
 
 
