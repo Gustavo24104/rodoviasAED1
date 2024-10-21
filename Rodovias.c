@@ -88,7 +88,7 @@ int InsereCidadeEmRodovia(lista_rodovia lista, int codigoRodovia, city cidade) {
 
 void ImprimeCidades(lista_cidade l) {
     if(l == NULL) return;
-    printf("    %s Distancia ate a proxima: %d\n", l->cidade.nome, l->cidade.distanciaProx);
+    printf("    %s | Distancia ate a proxima: %.2fkm\n", l->cidade.nome, l->cidade.distanciaProx);
     ImprimeCidades(l->prox);
 }
 
@@ -98,9 +98,60 @@ void ImprimeCidades(lista_cidade l) {
  */
 void ImprimeRodovias(lista_rodovia l) {
     if(l == NULL) return;
-    printf("Codigo: BR-%d. Pedagio: R$%d\n", l->estrada.codigo, l->estrada.pedagio);
+    printf("Codigo: BR-%03d. Pedagio: R$%03.2f\n", l->estrada.codigo, l->estrada.pedagio);
     ImprimeCidades(l->cidades);
     ImprimeRodovias(l->prox);
+}
+
+/**
+ * Lê as rodovias e respectivas cidades por meio de um arquivo, adicionando-os
+ * No arquivo, um inicio de rodovia é indicado por um número (codigo da rodovia, seguido pelo preço do pedagio)
+ * Cada linha seguinte é constituida de uma string de caracteres e um numero de ponto flutuante (Nome da cidade
+ * e distancia ate a proxima)
+ * Os preços sao separados por '-'
+ * @param cabeca cabeça da lista de rodovias
+ * @param arq arquivo que será feita a leitura
+ * @return 1 = Sucesso, 0 = Erro
+ */
+
+int CarregaRodovias(lista_rodovia *cabeca, FILE* arq) {
+    if(cabeca == NULL) {
+        printf("Lista nao incializada!\n");
+        return 0;
+    }
+    if(arq == NULL) {
+        printf("Erro no arquivo!");
+        return 0;
+    }
+    char buffer[200];
+    int cod = 0;
+    double ped = 0;
+    while(fgets(buffer, sizeof(buffer), arq)) { //Vai ate o EOF
+        if (buffer[strlen(buffer) - 1] == '\n') {
+            buffer[strlen(buffer) - 1] = '\0'; //Remove o '\n' ao final da string
+        }
+        char *tok, *tok2;
+        double n1, n2;
+        tok = strtok(buffer,"-"); //Separa as linhas
+        tok2 = strtok(NULL, "-");
+        if(tok == NULL || tok2 == NULL) continue;
+        n1 = strtod(tok, NULL); //Converte o valor para numero, retorna 0 se nao consegue
+        n2 = strtod(tok2, NULL);
+        if (n1 != 0) {
+            rodovia rod;
+            rod.codigo = (int)n1;
+            rod.pedagio = n2;
+            InsereRodoviaInicio(cabeca, rod);
+            cod = (int)n1; //Se nao for 0, entao o que ele econtrou foi um codigo de rodovia.
+            ped = n2;
+            continue;
+        }
+        city c;
+        strcpy(c.nome, tok);
+        c.distanciaProx = n2;
+        if (InsereCidadeEmRodovia(*cabeca, cod, c) == 0) return 0;
+    }
+    return 1;
 }
 
 
