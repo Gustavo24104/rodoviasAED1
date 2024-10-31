@@ -2,16 +2,20 @@
 
 #define RODOVIAS_AED1_RODOVIAS_H
 
+#include <stdio.h>
+
 struct Cidade {
     char nome[100];
-    int distanciaProx;
+    double distanciaProx;
 };
 
 typedef struct Cidade city;
 
 typedef struct Rodovia {
     int codigo;
-    int pedagio; //0 caso nao tenha
+    double pedagio; //0 caso nao tenha
+    double tamanho;
+    double velMedia;
 } rodovia;
 
 
@@ -35,10 +39,10 @@ typedef nodeR *lista_rodovia;
 
 
 int IniciaListaRodoviaVazia(lista_rodovia *li);
-int InsereRodoviaInicio(lista_rodovia *li, rodovia rod);
+int CarregaRodovias(lista_rodovia *cabeca, FILE* arq);
+char* Cruzamento(lista_rodovia lr,int codigo1, int codigo2); //Força bruta
 void ImprimeRodovias(lista_rodovia l);
-int InsereCidadeEmRodovia(lista_rodovia lista, int codigoRodovia, city cidade);
-
+lista_cidade EncontraRota(char* cidade1, char* cidade2, lista_rodovia lr);
 
 
 
