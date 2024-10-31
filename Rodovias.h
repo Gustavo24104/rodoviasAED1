@@ -14,6 +14,8 @@ typedef struct Cidade city;
 typedef struct Rodovia {
     int codigo;
     double pedagio; //0 caso nao tenha
+    double tamanho;
+    double velMedia;
 } rodovia;
 
 
@@ -38,8 +40,9 @@ typedef nodeR *lista_rodovia;
 
 int IniciaListaRodoviaVazia(lista_rodovia *li);
 int CarregaRodovias(lista_rodovia *cabeca, FILE* arq);
-int Cruzamento(lista_rodovia lr,int codigo1, int codigo2); //Força bruta
-
+char* Cruzamento(lista_rodovia lr,int codigo1, int codigo2); //Força bruta
+void ImprimeRodovias(lista_rodovia l);
+lista_cidade EncontraRota(char* cidade1, char* cidade2, lista_rodovia lr);
 
 
 

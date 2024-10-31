@@ -26,14 +26,30 @@ int InicializaCidades(lista_cidade *lc) {
 }
 
 int RemoveCidade(lista_cidade lc, char* nomeCidade) {
-    //
+    //TODO
 }
 
-int RemoveRodovia(lista_rodovia lr, int codigo) {
-    //
+int RemoveRodovia(lista_rodovia *lr, int codigo) {
+    //TODO
 }
 
 
+//Acha rodovias que contem uma cidade e armazena em codes, retornando o tamanho
+int AchaCidade(char* cidade, lista_rodovia lr, int codes[]) {
+    int i = 0;
+    lista_rodovia auxR = lr;
+    while(auxR != NULL) {
+        lista_cidade auxC = auxR->cidades;
+        while(auxC != NULL) {
+            if(strcmpi(auxC->cidade.nome, cidade) == 0) {
+                codes[i++] = auxR->estrada.codigo;
+            }
+            auxC = auxC->prox;
+        }
+        auxR = auxR->prox;
+    }
+    return i;
+}
 /**
  * Insere uma rodovia na lista encadeada no inicio
  * @param li cabeça da lista
@@ -96,6 +112,10 @@ int InsereCidadeEmRodovia(lista_rodovia lista, int codigoRodovia, city cidade) {
 
 void ImprimeCidades(lista_cidade l) {
     if(l == NULL) return;
+    if(l->prox == NULL) {
+        printf("    %s\n", l->cidade.nome);
+        return;
+    }
     printf("    %s | Distancia ate a proxima: %.2fkm\n", l->cidade.nome, l->cidade.distanciaProx);
     ImprimeCidades(l->prox);
 }
@@ -106,7 +126,8 @@ void ImprimeCidades(lista_cidade l) {
  */
 void ImprimeRodovias(lista_rodovia l) {
     if(l == NULL) return;
-    printf("Codigo: BR-%03d. Pedagio: R$%03.2f\n", l->estrada.codigo, l->estrada.pedagio);
+    printf("Código: BR-%03d. Pedagio: R$%03.2f. Tamanho: %.2lfKm, Velócidade média: %.2lfKm/h\n",
+           l->estrada.codigo, l->estrada.pedagio, l->estrada.tamanho, l->estrada.velMedia);
     ImprimeCidades(l->cidades);
     ImprimeRodovias(l->prox);
 }
@@ -121,7 +142,6 @@ void ImprimeRodovias(lista_rodovia l) {
  * @param arq arquivo que será feita a leitura
  * @return 1 = Sucesso, 0 = Erro
  */
-
 int CarregaRodovias(lista_rodovia *cabeca, FILE* arq) {
     if(cabeca == NULL) {
         printf("Lista nao incializada!\n");
@@ -138,17 +158,27 @@ int CarregaRodovias(lista_rodovia *cabeca, FILE* arq) {
         if (buffer[strlen(buffer) - 1] == '\n') {
             buffer[strlen(buffer) - 1] = '\0'; //Remove o '\n' ao final da string
         }
-        char *tok, *tok2;
-        double n1, n2;
+        char *tok, *tok2, *tok3, *tok4;
+        double n1, n2, n3, n4;
+        //As rodovias devem estar listadas do modo CODIGO-PEDAGIO-TAMANHO-VELOCIDADE
+        //As cidades deverão estar do modo "NOME CIDADE"-DISTANCIA
+        //Números fracionais devem estar separados com vírgula (Ex: 2,4)
         tok = strtok(buffer,"-"); //Separa as linhas
         tok2 = strtok(NULL, "-");
+        tok3 = strtok(NULL, "-");
+        tok4 = strtok(NULL, "-");
         if(tok == NULL || tok2 == NULL) continue;
-        n1 = strtod(tok, NULL); //Converte o valor para numero, retorna 0 se nao consegue
-        n2 = strtod(tok2, NULL);
+        //Converte o valor para numero, retorna 0 se nao consegue
+        n1 = strtod(tok, NULL); //codigo rodovia
+        n2 = strtod(tok2, NULL); //pedagio
+        n3 = strtod(tok3, NULL); //tamanho
+        n4 = strtod(tok4, NULL); //Velocidade media
         if (n1 != 0) {
             rodovia rod;
             rod.codigo = (int)n1;
             rod.pedagio = n2;
+            rod.tamanho = n3;
+            rod.velMedia = n4;
             InsereRodoviaInicio(cabeca, rod);
             cod = (int)n1; //Se nao for 0, entao o que ele econtrou foi um codigo de rodovia.
             ped = n2;
@@ -163,13 +193,55 @@ int CarregaRodovias(lista_rodovia *cabeca, FILE* arq) {
 }
 
 /**
- * Verifica se (e onde) duas rodovias se cruzam a partir do codigo das duas
- * @param codigo1
- * @param codigo2
- * @return
+ * Encontra a primeira cidade de intersecção entre 2 rodovias
+ * @param codigo1 codigo da primeira rodovia
+ * @param codigo2 codigo da segunda rodovia
+ * @return "ERR" caso haja algum erro.
+ * @return 0 caso nao haja interseccao.
+ * @return Nome da cidade caso exista
  */
-int Cruzamento(lista_rodovia lr,int codigo1, int codigo2) {
+char* Cruzamento(lista_rodovia lr,int codigo1, int codigo2) {
+    if(lr == NULL) return "ERR";
+    if(codigo1 == codigo2) return 0;
+    lista_rodovia aux = lr;
+    lista_cidade lc1 = NULL, lc2 = NULL;
+    while(aux != NULL) {
+        if(aux->estrada.codigo == codigo1) {
+            lc1 = aux->cidades;
+        }
+        if(aux->estrada.codigo == codigo2) {
+            lc2 = aux->cidades;
+        }
+        if(lc1 != NULL && lc2 != NULL) break;
+        aux = aux->prox;
+    }
+    if(lc1 == NULL || lc2 == NULL) return "ERR";
 
+    while(lc1 != NULL) {
+        auto aux2 = lc2;
+        while(aux2 != NULL) {
+            if(strcmpi(lc1->cidade.nome, aux2->cidade.nome) == 0) return lc1->cidade.nome;
+            aux2 = aux2->prox;
+        }
+        lc1 = lc1->prox;
+    }
+    return 0;
 }
 
 
+/**
+ * Encontra uma rota da cidade1 para cidade2
+ * @param cidade1 Cidade inicial
+ * @param cidade2 Cidade final
+ * @param lr Lista de rodovias
+ * @return rota como uma lista encadeada de cidades (?)
+ * @return NULL caso nao exista caminho.
+ */
+lista_cidade EncontraRota(char* cidade1, char* cidade2, lista_rodovia lr) {
+    /* TODO: Ideia ate agora:
+     * Primeiro passo: Verifica se não tao na mesma rodovia (se tiverem o caminho é trivial)
+     * Caso contrário, usa a função AchaCidades pra ter uma visão geral de quais rodovias olhar e verifica uma a uma
+     * Algo desse nível
+     */
+    return NULL;
+}
