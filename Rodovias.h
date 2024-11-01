@@ -43,6 +43,8 @@ int CarregaRodovias(lista_rodovia *cabeca, FILE* arq);
 char* Cruzamento(lista_rodovia lr,int codigo1, int codigo2); //Força bruta
 void ImprimeRodovias(lista_rodovia l);
 lista_cidade EncontraRota(char* cidade1, char* cidade2, lista_rodovia lr);
+void ImprimeCidades(lista_cidade l);
+
 
 
 
