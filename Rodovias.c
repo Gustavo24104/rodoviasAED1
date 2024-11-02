@@ -48,9 +48,10 @@ int RemoveRodovia(lista_rodovia *lr, int codigo) {
     //TODO
 }
 
+//Encontra a primeira rodovia que tem uma certa cidade
 lista_rodovia AchaRodoviaPorNome(char* cid, lista_rodovia lr) {
     lista_rodovia aux = lr;
-    while(lr != NULL){
+    while(aux != NULL){
         lista_cidade aux2 = aux->cidades;
         while(aux2 != NULL) {
             if(strcmpi(cid, aux2->cidade.nome) == 0) return aux;
@@ -60,13 +61,13 @@ lista_rodovia AchaRodoviaPorNome(char* cid, lista_rodovia lr) {
     }
     return NULL;
 }
+
 //Acha rodovias que contem uma cidade e armazena em codes, retornando o tamanho
 int RodoviasDaCidade(char* cidade, lista_rodovia lr, nodeR *codes[]) {
     int i = 0;
     lista_rodovia auxR = lr;
     while(auxR != NULL) {
         lista_cidade auxC = auxR->cidades;
-        if(auxC->cidade.nome == ' ') return 0;
         while(auxC != NULL) {
             if(strcmpi(auxC->cidade.nome, cidade) == 0) {
                 codes[i++] = auxR;
@@ -257,13 +258,12 @@ int CarregaRodovias(lista_rodovia *cabeca, void* arq) {
 }
 
 /**
- * Encontra as cidades onde as rodovias se cruzam e armazena no vetor codes
+ * Verifica se duas rodovias passam pela mesma cidade.
  * @param codigo1 codigo da primeira rodovia
  * @param codigo2 codigo da segunda rodovia
- * @return retorna a qtidade de cruzamentos
+ * @return 1 se sim. 0 se não
  */
-int Cruzamento(lista_rodovia lr,int codigo1, int codigo2, nodeC *codesR1[], nodeC *codesR2[]) {
-    int count = 0;
+int Cruzamento(lista_rodovia lr, int codigo1, int codigo2, char *cidade) {
     if(lr == NULL) return -1;
     if(codigo1 == codigo2) return 0;
     lista_rodovia aux = lr;
@@ -283,16 +283,15 @@ int Cruzamento(lista_rodovia lr,int codigo1, int codigo2, nodeC *codesR1[], node
     while(lc1 != NULL) {
         lista_cidade aux2 = lc2;
         while(aux2 != NULL) {
-            if(strcmpi(lc1->cidade.nome, aux2->cidade.nome) == 0) {
-                codesR1[count] = lc1;
-                codesR2[count] = aux2;
-                count++;
+            if(strcmpi(lc1->cidade.nome, aux2->cidade.nome) == 0
+            && strcmpi(aux2->cidade.nome, cidade) == 0) {
+                return 1;
             }
             aux2 = aux2->prox;
         }
         lc1 = lc1->prox;
     }
-    return count;
+    return 0;
 }
 
 int CruzamentoPorPonteiro(lista_rodovia l1, lista_rodovia l2, nodeC *codesR1[], nodeC *codesR2[]) {
@@ -313,47 +312,22 @@ int CruzamentoPorPonteiro(lista_rodovia l1, lista_rodovia l2, nodeC *codesR1[], 
     return count;
 }
 
-
-lista_cidade RotaAux(char* cidade1, char *cidade2, lista_rodovia rodoviasC1) {
-    //estao na mesma rodovia!
-
-}
-
-/**
- * Encontra uma rota da cidade1 para cidade2
- * @param cidade1 Cidade inicial
- * @param cidade2 Cidade final
- * @param rod1 Rodovia que se localiza a primeira cidade
- * @param rod2 Rodovia que se localiza a segunda cidade
- * @return rota como uma lista encadeada de cidades (?)
- * @return NULL caso nao exista caminho.
- */
-lista_cidade EncontraRota(char *cidade1, char *cidade2, lista_rodovia rod1, lista_rodovia rod2) {
-    /* TODO: Ideia ate agora:
-     * Primeiro passo: Verifica se não tao na mesma rodovia (se tiverem o caminho é trivial)
-     * Caso contrário, usa a função RodoviasDaCidades pra ter uma visão geral de quais rodovias olhar e verifica uma a uma
-     * Algo desse nível
-     */
-
-    if(rod1 == rod2) {
+lista_cidade RotaAux(lista_rodovia rod1, char* cidade1, char* cidade2) { //Cruzamento para cidades na mesma rodovia.
         lista_cidade c1 = rod1->cidades;
         while (strcmpi(c1->cidade.nome, cidade1) != 0) c1 = c1->prox;
         lista_cidade percorrePraFrente = c1, percorrePraTras = c1;
         lista_cidade praFrente, praTras;
         InicializaCidades(&praTras);
         InicializaCidades(&praFrente);
-        while (1) { //n
-            if (percorrePraFrente == NULL && percorrePraTras == NULL) {
-
-            } //Isso aqui n eh pra acontecer nunca KKKKKKKK
-            if (percorrePraFrente != NULL) {
+        while (percorrePraFrente != NULL && percorrePraTras != NULL) { //n
+            //if (percorrePraFrente != NULL) {
                 InsereCidade(&praFrente, percorrePraFrente->cidade);
                 percorrePraFrente = percorrePraFrente->prox;
-            }
-            if (percorrePraTras != NULL) {
+           // }
+            //if (percorrePraTras != NULL) {
                 InsereCidade(&praTras, percorrePraTras->cidade);
                 percorrePraTras = percorrePraTras->ant;
-            }
+            //}
             if (percorrePraFrente != NULL && strcmpi(percorrePraFrente->cidade.nome, cidade2) == 0) {
                 InsereCidade(&praFrente, percorrePraFrente->cidade);
                 LiberaListaCidade(&praTras);
@@ -365,12 +339,32 @@ lista_cidade EncontraRota(char *cidade1, char *cidade2, lista_rodovia rod1, list
                 return praTras;
             }
         }
-    }
+        return NULL;
+}
 
-    nodeC *c1 = rod1->cidades, *c2 = rod2->cidades;
+/**
+ * Encontra uma rota da cidade1 para cidade2
+ * @param cidade1 Cidade inicial
+ * @param cidade2 Cidade final
+ * @param lr Rodovia que se localiza a primeira cidade
+ * @param rod2 Rodovia que se localiza a segunda cidade
+ * @return rota como uma lista encadeada de cidades (?)
+ * @return NULL caso nao exista caminho.
+ */
+lista_cidade EncontraRota(char *cidade1, char *cidade2, lista_rodovia lr) {
+    /* TODO: Ideia ate agora:
+     * Primeiro passo: Verifica se não tao na mesma rodovia (se tiverem o caminho é trivial)
+     * Caso contrário, usa a função RodoviasDaCidades pra ter uma visão geral de quais rodovias olhar e verifica uma a uma
+     * Algo desse nível
+     */
+    nodeC *c1 = AchaRodoviaPorNome(cidade1, lr)->cidades, *c2 = AchaRodoviaPorNome(cidade2, lr)->cidades;
     while(strcmpi(cidade1, c1->cidade.nome) != 0) c1 = c1->prox;
     while(strcmpi(cidade2, c2->cidade.nome) != 0) c2 = c2->prox;
 
+    if(c1->pai == c2->pai) return RotaAux(AchaRodoviaPorNome(cidade1, lr), cidade1, cidade2);
+
+    nodeR* arestas[100];
+    int qtdArestas = RodoviasDaCidade(cidade1, lr, arestas);
     //agora vai.
 
 

@@ -21,9 +21,9 @@ typedef nodeR *lista_rodovia;
 
 int IniciaListaRodoviaVazia(lista_rodovia *li);
 int CarregaRodovias(lista_rodovia *cabeca, void* arq);
-int Cruzamento(lista_rodovia lr,int codigo1, int codigo2, nodeC *codesR1[], nodeC *codesR2[]); //Força bruta
+int Cruzamento(lista_rodovia lr, int codigo1, int codigo2, char *cidade);
 void ImprimeRodovias(lista_rodovia l);
-lista_cidade EncontraRota(char *cidade1, char *cidade2, lista_rodovia rod1, lista_rodovia rod2);
+lista_cidade EncontraRota(char *cidade1, char *cidade2, lista_rodovia lr);
 void ImprimeCidades(lista_cidade l);
 void LiberaListaRodovia(lista_rodovia *lr);
 int RodoviasDaCidade(char* cidade, lista_rodovia lr, nodeR *codes[]);
