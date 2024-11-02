@@ -48,7 +48,18 @@ int RemoveRodovia(lista_rodovia *lr, int codigo) {
     //TODO
 }
 
-
+lista_rodovia AchaRodoviaPorNome(char* cid, lista_rodovia lr) {
+    lista_rodovia aux = lr;
+    while(lr != NULL){
+        lista_cidade aux2 = aux->cidades;
+        while(aux2 != NULL) {
+            if(strcmpi(cid, aux2->cidade.nome) == 0) return aux;
+            aux2 = aux2->prox;
+        }
+        aux = aux->prox;
+    }
+    return NULL;
+}
 //Acha rodovias que contem uma cidade e armazena em codes, retornando o tamanho
 int RodoviasDaCidade(char* cidade, lista_rodovia lr, nodeR *codes[]) {
     int i = 0;
@@ -129,6 +140,14 @@ nodeR* InsereRodoviaOrdenado(lista_rodovia *lr, rodovia rod) { //retorna a adici
     return novo;
 }
 
+lista_rodovia AchaRodoviaCodigo(int cod, lista_rodovia lr) {
+    lista_rodovia aux = lr;
+    while(aux != NULL) {
+        if(aux->estrada.codigo == cod) return aux;
+        aux = aux->prox;
+    }
+    return NULL;
+}
 
 /**
  * Insere uma cidade na rodovia especificada pelo codigo
@@ -151,6 +170,7 @@ int InsereCidadeEmRodovia(lista_rodovia lista, city cidade) {
         novo->cidade = cidade;
         novo->prox = NULL;
         novo->ant = NULL;
+        novo->pai = lista;
         if(lista->cidades == NULL) { //Primeira cidade da rodovia, inserindo na cabeça
             lista->cidades = novo;
             return 0;
@@ -296,66 +316,84 @@ int CruzamentoPorPonteiro(lista_rodovia l1, lista_rodovia l2, nodeC *codesR1[], 
 
 lista_cidade RotaAux(char* cidade1, char *cidade2, lista_rodovia rodoviasC1) {
     //estao na mesma rodovia!
-    lista_cidade c1 = rodoviasC1->cidades;
-    while (strcmpi(c1->cidade.nome, cidade1) != 0) c1 = c1->prox;
-    lista_cidade percorrePraFrente = c1, percorrePraTras = c1;
-    lista_cidade praFrente, praTras;
-    InicializaCidades(&praTras);
-    InicializaCidades(&praFrente);
-    while (1) { //n
-        if (percorrePraFrente == NULL && percorrePraTras == NULL) {
 
-        } //Isso aqui n eh pra acontecer nunca KKKKKKKK
-        if (percorrePraFrente != NULL) {
-            InsereCidade(&praFrente, percorrePraFrente->cidade);
-            percorrePraFrente = percorrePraFrente->prox;
-        }
-        if (percorrePraTras != NULL) {
-            InsereCidade(&praTras, percorrePraTras->cidade);
-            percorrePraTras = percorrePraTras->ant;
-        }
-        if (percorrePraFrente != NULL && strcmpi(percorrePraFrente->cidade.nome, cidade2) == 0) {
-            InsereCidade(&praFrente, percorrePraFrente->cidade);
-            LiberaListaCidade(&praTras);
-            return praFrente;
-        }
-        if (percorrePraTras != NULL && strcmpi(percorrePraTras->cidade.nome, cidade2) == 0) {
-            InsereCidade(&praTras, percorrePraTras->cidade);
-            LiberaListaCidade(&praFrente);
-            return praTras;
-        }
-    }
 }
 
 /**
  * Encontra uma rota da cidade1 para cidade2
  * @param cidade1 Cidade inicial
  * @param cidade2 Cidade final
- * @param lr Lista de rodovias
+ * @param rod1 Rodovia que se localiza a primeira cidade
+ * @param rod2 Rodovia que se localiza a segunda cidade
  * @return rota como uma lista encadeada de cidades (?)
  * @return NULL caso nao exista caminho.
  */
-lista_cidade EncontraRota(char* cidade1, char* cidade2, lista_rodovia lr) {
+lista_cidade EncontraRota(char *cidade1, char *cidade2, lista_rodovia rod1, lista_rodovia rod2) {
     /* TODO: Ideia ate agora:
      * Primeiro passo: Verifica se não tao na mesma rodovia (se tiverem o caminho é trivial)
      * Caso contrário, usa a função RodoviasDaCidades pra ter uma visão geral de quais rodovias olhar e verifica uma a uma
      * Algo desse nível
      */
 
-    nodeR *rodoviasC1[100],  *rodoviasC2[100];
-    int qtdRodoviasC1, qtdRodoviasC2;
-    qtdRodoviasC1 = RodoviasDaCidade(cidade1, lr, rodoviasC1);
-    qtdRodoviasC2 = RodoviasDaCidade(cidade2, lr, rodoviasC2);
-    if(qtdRodoviasC1 == 0 || qtdRodoviasC2 == 0) {
-        return NULL;
-    }
-    lista_cidade c1 = rodoviasC1[0]->cidades;
-    //caso as cidades estejam na mesma rodovia: vai andando pra frente e pra tras ate achar o caminho
-    for(int i = 0; i < qtdRodoviasC1; i++) {
-        if(BuscaBinariaRodovia(rodoviasC1[i]->estrada.codigo, rodoviasC2, qtdRodoviasC2)) { //logn
-            return RotaAux(cidade1, cidade2, rodoviasC1[i]);
+    if(rod1 == rod2) {
+        lista_cidade c1 = rod1->cidades;
+        while (strcmpi(c1->cidade.nome, cidade1) != 0) c1 = c1->prox;
+        lista_cidade percorrePraFrente = c1, percorrePraTras = c1;
+        lista_cidade praFrente, praTras;
+        InicializaCidades(&praTras);
+        InicializaCidades(&praFrente);
+        while (1) { //n
+            if (percorrePraFrente == NULL && percorrePraTras == NULL) {
+
+            } //Isso aqui n eh pra acontecer nunca KKKKKKKK
+            if (percorrePraFrente != NULL) {
+                InsereCidade(&praFrente, percorrePraFrente->cidade);
+                percorrePraFrente = percorrePraFrente->prox;
+            }
+            if (percorrePraTras != NULL) {
+                InsereCidade(&praTras, percorrePraTras->cidade);
+                percorrePraTras = percorrePraTras->ant;
+            }
+            if (percorrePraFrente != NULL && strcmpi(percorrePraFrente->cidade.nome, cidade2) == 0) {
+                InsereCidade(&praFrente, percorrePraFrente->cidade);
+                LiberaListaCidade(&praTras);
+                return praFrente;
+            }
+            if (percorrePraTras != NULL && strcmpi(percorrePraTras->cidade.nome, cidade2) == 0) {
+                InsereCidade(&praTras, percorrePraTras->cidade);
+                LiberaListaCidade(&praFrente);
+                return praTras;
+            }
         }
     }
+
+    nodeC *c1 = rod1->cidades, *c2 = rod2->cidades;
+    while(strcmpi(cidade1, c1->cidade.nome) != 0) c1 = c1->prox;
+    while(strcmpi(cidade2, c2->cidade.nome) != 0) c2 = c2->prox;
+
+    //agora vai.
+
+
+//    nodeR *rodoviasC1[100],  *rodoviasC2[100];
+//    int qtdRodoviasC1, qtdRodoviasC2;
+//    qtdRodoviasC1 = RodoviasDaCidade(cidade1, rod1, rodoviasC1);
+//    qtdRodoviasC2 = RodoviasDaCidade(cidade2, rod1, rodoviasC2);
+//    if(qtdRodoviasC1 == 0 || qtdRodoviasC2 == 0) {
+//        return NULL;
+//    }
+//    lista_cidade c1 = rodoviasC1[0]->cidades;
+//    //caso as cidades estejam na mesma rodovia: vai andando pra frente e pra tras ate achar o caminho
+//    for(int i = 0; i < qtdRodoviasC1; i++) {
+//        if(BuscaBinariaRodovia(rodoviasC1[i]->estrada.codigo, rodoviasC2, qtdRodoviasC2)) { //logn
+//            return RotaAux(cidade1, cidade2, rodoviasC1[i]);
+//        }
+//    }
+
+
+
+
+
+
     //caso contrário:
     //Eh meio q uma busca em largura se ela fosse MUITO ruim
 //    for(int i = 0; i < qtdRodoviasC1; i++) {

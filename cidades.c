@@ -1,6 +1,7 @@
 #include "cidades.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "Rodovias.h"
 
 
 int InsereCidade(lista_cidade *lc, city c) {
@@ -8,6 +9,7 @@ int InsereCidade(lista_cidade *lc, city c) {
 
     nodeC *novo = malloc(sizeof(nodeC));
     novo->cidade = c;
+    novo->pai = NULL;
     novo->prox = NULL;
     novo->ant = NULL;
     if(*lc == NULL) {
@@ -27,7 +29,8 @@ void ImprimeCidades(lista_cidade l) {
         printf("    %s\n", l->cidade.nome);
         return;
     }
-    printf("    %s | Distancia ate a proxima: %.2fkm\n", l->cidade.nome, l->cidade.distanciaProx);
+    //lista_rodovia pai = (lista_rodovia)l->pai;
+    printf("    %s | Distancia ate a proxima: %.2fkm.\n", l->cidade.nome, l->cidade.distanciaProx);
     ImprimeCidades(l->prox);
 }
 
@@ -55,6 +58,7 @@ void LiberaListaCidade(lista_cidade *lc) {
     //lc = NULL;
     free(*lc);
 }
+
 
 int RemoveCidade(lista_cidade lc, char* nomeCidade) {
     //TODO

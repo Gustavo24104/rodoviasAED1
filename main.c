@@ -19,8 +19,9 @@ int main() {
 
     //ImprimeRodovias(cabeca);
 
-    lista_cidade aa = EncontraRota("Uberlândia", "Barretos", cabeca);
-    //EncontraRota("California", "Uberlândia", cabeca);
+//     = EncontraRota("Uberlândia", "Barretos", cabeca);
+    lista_cidade aa = EncontraRota("California", "Uberlândia",
+                 AchaRodoviaPorNome("California", cabeca), AchaRodoviaPorNome("Uberlândia", cabeca));
     ImprimeCidades(aa);
     LiberaListaRodovia(&cabeca);
 }

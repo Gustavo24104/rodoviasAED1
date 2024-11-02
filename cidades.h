@@ -1,7 +1,6 @@
-
-
 #ifndef RODOVIAS_AED1_CIDADES_H
 #define RODOVIAS_AED1_CIDADES_H
+
 
 struct Cidade {
     char nome[100];
@@ -10,10 +9,12 @@ struct Cidade {
 
 typedef struct Cidade city;
 
+
 typedef struct noCidade {
     struct noCidade *prox;
     city cidade;
     struct noCidade *ant;
+    struct noRodoviario *pai;
 } nodeC; //No para lista de cidades
 
 typedef nodeC *lista_cidade;
