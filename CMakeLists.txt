@@ -6,4 +6,6 @@ set(CMAKE_C_STANDARD 23)
 add_executable(Rodovias_AED1 main.c
         Rodovias.h
         Rodovias.c
-        Rodovias.h)
+        Rodovias.h
+        cidades.c
+        cidades.h)

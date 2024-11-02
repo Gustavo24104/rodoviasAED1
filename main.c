@@ -11,22 +11,27 @@ int main() {
     IniciaListaRodoviaVazia(&cabeca);
     FILE *arq;
     arq = fopen("rodovias.txt", "r");
-    if( CarregaRodovias(&cabeca, arq) == 0) {
+    if( CarregaRodovias(&cabeca, arq) == 1) {
         printf("Algo deu errado!\n");
         exit(-1);
     }
-    //ImprimeRodovias(cabeca);
-//    int a[100];
-//    int tam = AchaCidade("Uberlândia", cabeca, a);
-//    for(int i = 0; i < tam; i++) {
-//        printf("%03d\n", a[i]);
-//    }
-
-    lista_cidade a = EncontraRota("Uberlândia", "California", cabeca);
-    ImprimeCidades(a);
-
-
-
-
     fclose(arq);
+
+    //ImprimeRodovias(cabeca);
+    printf("\n");
+
+    nodeC *cs[100];
+    int t = Cruzamento(cabeca, 123, 290, cs);
+    printf("%d\n", t);
+    for(int i = 0; i < t; i++) {
+        printf("%s\n", cs[i]->cidade.nome);
+    }
+
+    lista_cidade a = EncontraRota("Uberlândia", "Felixlândia", cabeca);
+    //ImprimeCidades(a);
+
+
+    LiberaListaRodovia(&cabeca);
+
+
 }
