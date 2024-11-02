@@ -18,20 +18,12 @@ int main() {
     fclose(arq);
 
     //ImprimeRodovias(cabeca);
-    printf("\n");
 
-    nodeC *cs[100];
-    int t = Cruzamento(cabeca, 123, 290, cs);
-    printf("%d\n", t);
-    for(int i = 0; i < t; i++) {
-        printf("%s\n", cs[i]->cidade.nome);
-    }
-
-    lista_cidade a = EncontraRota("Uberlândia", "Felixlândia", cabeca);
-    //ImprimeCidades(a);
-
-
+    lista_cidade aa = EncontraRota("Uberlândia", "Barretos", cabeca);
+    //EncontraRota("California", "Uberlândia", cabeca);
+    ImprimeCidades(aa);
     LiberaListaRodovia(&cabeca);
-
-
 }
+
+
+
