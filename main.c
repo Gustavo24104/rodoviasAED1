@@ -4,6 +4,9 @@
 #include <string.h>
 #include <locale.h>
 
+#define MAX 150
+
+
 
 int main() {
     setlocale(LC_ALL, "pt_br.UTF-8");
@@ -17,18 +20,17 @@ int main() {
     }
     fclose(arq);
 
-    //ImprimeRodovias(cabeca);
+    ImprimeRodovias(cabeca);
 
-    nodeR *ub = AchaRodoviaPorNome("Uberlândia", cabeca);
-    nodeR *ba = AchaRodoviaPorNome("MPGP house", cabeca);
+    printf("\n");
 
-//     = EncontraRota("Uberlândia", "Barretos", cabeca);
-    lista_cidade aa = EncontraRota("Uberlândia", "California", cabeca);
 
-    lista_cidade teste[100], t2[100];
-    int qtd = CruzamentoPorPonteiro(ub, ba, teste, t2);
-    ImprimeCidades(aa);
-    LiberaListaRodovia(&cabeca);
+
+    EncontraRota("Uberlândia", "MPGP house", cabeca);
+
+        //lista_cidade aa = EncontraRota("Uberlândia", "MPGP house", cabeca);
+    //ImprimeCidades(aa);
+//    LiberaListaRodovia(&cabeca);
 }
 
 
