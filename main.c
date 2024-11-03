@@ -3,6 +3,7 @@
 #include "Rodovias.h"
 #include <string.h>
 #include <locale.h>
+#include "Caminhos.h"
 
 #define MAX 150
 
