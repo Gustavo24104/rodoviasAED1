@@ -343,7 +343,7 @@ int CarregaRodovias(lista_rodovia *cabeca, void* arq) {
  * @param codigo2 codigo da segunda rodovia
  * @return 1 se sim. 0 se não
  */
-int Cruzamento(lista_rodovia lr, int codigo1, int codigo2, char *cidade) {
+int CruzamentoNaCidade(lista_rodovia lr, int codigo1, int codigo2, char *cidade) {
     if(lr == NULL) return -1;
     if(codigo1 == codigo2) return 0;
     lista_rodovia aux = lr;
@@ -372,6 +372,26 @@ int Cruzamento(lista_rodovia lr, int codigo1, int codigo2, char *cidade) {
         lc1 = lc1->prox;
     }
     return 0;
+}
+
+nodeC* AchaCruzamento(int cod1, int cod2, lista_rodovia cabeca) {
+    if(cabeca == NULL) return NULL;
+    nodeR *r1 = cabeca, *r2 = cabeca;
+    while(r1->estrada.codigo != cod1) r1 = r1->prox;
+    while(r2->estrada.codigo != cod1) r2 = r2->prox;
+    nodeC *cid1 = r1->cidades;
+
+    while(cid1 != NULL) {
+        nodeC *cid2 = r2->cidades;
+        while(cid2 != NULL) {
+            if(strcmpi(cid1->cidade.nome, cid2->cidade.nome) == 0) {
+                printf("Cruzamento de %d e %d em: %s\n", cod1, cod2, cid2->cidade.nome);
+                return cid2;
+            }
+            cid2 = cid2->prox;
+        }
+        cid1 = cid1->prox;
+    }
 }
 
 int CruzamentoPorPonteiro(lista_rodovia l1, lista_rodovia l2, nodeC *codesR1[], nodeC *codesR2[]) {

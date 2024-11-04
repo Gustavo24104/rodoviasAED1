@@ -21,14 +21,14 @@ int main() {
     }
     fclose(arq);
 
-    ImprimeRodovias(cabeca);
+    //ImprimeRodovias(cabeca);
 
     printf("\n");
 
 
 
-    EncontraRota("Uberlândia", "MPGP house", cabeca);
-
+    lista_cidade acaba = EncontraRota("Uberlândia", "MPGP house", cabeca);
+    ImprimeCidades(acaba);
         //lista_cidade aa = EncontraRota("Uberlândia", "MPGP house", cabeca);
     //ImprimeCidades(aa);
 //    LiberaListaRodovia(&cabeca);
