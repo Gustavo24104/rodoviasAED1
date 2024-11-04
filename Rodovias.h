@@ -34,6 +34,7 @@ int ContaRodovias(lista_rodovia c);
 int CriaListaAdjacencia(lista_rodovia lr, nodeR *adj[150], lista_rodovia cabeca);
 nodeC * AchaCruzamento(int cod1, int cod2, lista_rodovia cabeca);
 int CruzamentoPorPonteiro(lista_rodovia l1, lista_rodovia l2, nodeC *codesR1[], nodeC *codesR2[]);
+lista_rodovia AchaRodoviaCodigo(int cod, lista_rodovia lr);
 
 
 

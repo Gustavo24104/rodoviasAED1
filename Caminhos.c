@@ -85,7 +85,7 @@ int QtidadeCaminho(const int c[]) {
 
 
 int bfs(nodeR *rod1, nodeR *rod2, lista_rodovia cabeca, int caminho[]) {
-    if (rod1 == NULL || rod2 == NULL) return -1;
+    if (rod1 == NULL || rod2 == NULL) return 0;
     int qtdRods = ContaRodovias(cabeca);
     lista_rodovia listaAdj[qtdRods];
     for (int i = 0; i < qtdRods; i++) {
@@ -101,7 +101,7 @@ int bfs(nodeR *rod1, nodeR *rod2, lista_rodovia cabeca, int caminho[]) {
             InsereRodoviaFinal(&listaAdj[i], listaAux[j]->estrada);
         }
     }
-
+    //Busca em largua ---------------------------------------------------------------------------------------
     nodeR marcados[MAX]; int numVisitados = 0;
     nodeR *fila[MAX]; int inicio = 0, fim = 0;
     int ach = 0;
@@ -109,10 +109,8 @@ int bfs(nodeR *rod1, nodeR *rod2, lista_rodovia cabeca, int caminho[]) {
     for(int i = 0; i < qtdRods; i++) anteriores[i] = -1;
     marcados[numVisitados++] = *IndexaRodovias(cabeca, EncontraIndice(cabeca, rod1->estrada.codigo));
     fila[fim++] = IndexaRodovias(cabeca, EncontraIndice(cabeca, rod1->estrada.codigo));
-
     while(inicio < fim) {
         nodeR *at = fila[inicio++];
-        //printf("Percorrido: %d\n", at->estrada.codigo);
         nodeR *vizinhos = listaAdj[EncontraIndice(cabeca,at->estrada.codigo)];
         while(vizinhos != NULL){
             if(!CodigoMarcado(vizinhos->estrada.codigo, marcados, numVisitados)){
@@ -128,12 +126,13 @@ int bfs(nodeR *rod1, nodeR *rod2, lista_rodovia cabeca, int caminho[]) {
             vizinhos = vizinhos->prox;
         }
     }
+    //----------------------------------------------------------------------------------------------------------------
+    if(ach == 0) return 0;
 
     //talvez os caminhos agora
     int c = EncontraIndice(cabeca, rod2->estrada.codigo);
     int qtdCaminho = 0;
     caminho[qtdCaminho++] = rod2->estrada.codigo;
-    if(ach == 0) return 0;
     while (anteriores[c] != -1) {
         caminho[qtdCaminho++] = anteriores[c];
         c = EncontraIndice(cabeca, anteriores[c]);
@@ -185,21 +184,47 @@ lista_cidade EncontraRotaLocal(nodeC *c1, char* destino) {
 }
 
 
-int CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *rota[], char *c1, char *c2, lista_rodovia cabeca) {
-    char inicio[100], fim[100];
-    lista_cidade cmc = AchaCidadePorNome(c1, cabeca)->cidades, final = AchaCidadePorNome(c2, cabeca)->cidades;
-    while(strcmpi(cmc->cidade.nome, c1) != 0) cmc = cmc->prox;
-    while(strcmpi(final->cidade.nome, c2) != 0) final = final->prox;
-    //int qtdCidades = 0;
-    //char* temp[MAX];
-    //temp[qtdCidades++] = c1;
-    nodeC *atual = cmc;
-    for(int i = 1; i < qtd - 1; i++) {
-        nodeC *pulo = AchaCruzamento(rodovias[i], rodovias[i+1], cabeca);
-        printf("Pulo: %s\n", pulo->cidade.nome);
-        lista_cidade plmds = EncontraRotaLocal(atual, pulo->cidade.nome);
-        printf("Rota:\n"); ImprimeCidades(plmds);
+void ImprimeRota(lista_cidade rota) {
+    nodeC *carro = rota;
+    int lineBreak = 1;
+    printf("Caminho desejado:\n"); //Deixar isso mais bonito depois
+    while(carro != NULL) {
+        if(carro->prox != NULL) printf("%s -> ", carro->cidade.nome);
+        else printf("%s\n", carro->cidade.nome);
+        carro = carro->prox;
+        if(lineBreak % 8 == 0) printf("\n");
+        lineBreak++;
     }
+}
+
+
+lista_cidade CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *origem, char *destino, lista_rodovia cabeca) {
+    char inicio[100], fim[100];
+    if(qtd == 0) return 0;
+    lista_cidade cmc = AchaRodoviaCodigo(rodovias[0], cabeca)->cidades, final = AchaRodoviaCodigo(rodovias[qtd-1], cabeca)->cidades;
+    while(strcmpi(cmc->cidade.nome, origem) != 0) cmc = cmc->prox;
+    while(strcmpi(final->cidade.nome, destino) != 0) final = final->prox;
+    int tamanhoRota = 0;
+    nodeC *atual = cmc, *roteia = NULL;
+    InsereCidadeFinal(&roteia, cmc->cidade);
+    for(int i = 0; i < qtd - 1; i++) {
+        nodeC *intersecc = AchaCruzamento(rodovias[i], rodovias[i + 1], cabeca);
+        lista_cidade rotaTemp = EncontraRotaLocal(atual, intersecc->cidade.nome);
+        atual = intersecc;
+        for(nodeC *add = rotaTemp->prox; add != NULL; add = add->prox) {
+            InsereCidadeFinal(&roteia, add->cidade);
+        }
+        //ImprimeCidades(rotaTemp);
+    }
+    lista_cidade rotaF = EncontraRotaLocal(atual, destino)->prox;
+    while(rotaF != NULL) {
+        InsereCidadeFinal(&roteia, rotaF->cidade);
+        rotaF = rotaF->prox;
+    }
+
+
+    return roteia;
+    //ImprimeCidades(rotaF);
 }
 
 
@@ -216,7 +241,7 @@ int CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *rota[], char *c1, cha
  * @return NULL caso nao exista caminho.
  */
 lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca) {
-    nodeR *rodoviasC1[MAX],  *rodoviasC2[MAX], *caminho[MAX];
+    nodeR *rodoviasC1[MAX],  *rodoviasC2[MAX];
     int qtdRodoviasC1, qtdRodoviasC2, caminhoRodovia[MAX], desvios;
     lista_cidade c1;
     qtdRodoviasC1 = RodoviasDaCidade(origem, cabeca, rodoviasC1);
@@ -253,16 +278,7 @@ lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca) {
         if(a == 1) break;
     }
 
-
-    for(int i = 0; i < desvios; i++) {
-        printf("%d ", caminhoRodovia[i]);
-    }
-    printf("\n");
-    CaminhoEntreRodovias(desvios, caminhoRodovia, nullptr, origem, destino, cabeca);
-
-//    c1 = AchaCidadePorNome(origem, lr)->cidades;
-//    while(strcmpi(c1->cidade.nome, origem) != 0) c1 = c1->prox;
-//    bfs(c1->pai, rodoviasC2[0], lr, caminho);
-    return NULL;
+    return CaminhoEntreRodovias(desvios, caminhoRodovia, origem, destino, cabeca);
+    //Agora, constroi a rota
 }
 

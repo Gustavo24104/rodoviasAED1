@@ -378,14 +378,14 @@ nodeC* AchaCruzamento(int cod1, int cod2, lista_rodovia cabeca) {
     if(cabeca == NULL) return NULL;
     nodeR *r1 = cabeca, *r2 = cabeca;
     while(r1->estrada.codigo != cod1) r1 = r1->prox;
-    while(r2->estrada.codigo != cod1) r2 = r2->prox;
+    while(r2->estrada.codigo != cod2) r2 = r2->prox;
     nodeC *cid1 = r1->cidades;
 
     while(cid1 != NULL) {
         nodeC *cid2 = r2->cidades;
         while(cid2 != NULL) {
             if(strcmpi(cid1->cidade.nome, cid2->cidade.nome) == 0) {
-                printf("Cruzamento de %d e %d em: %s\n", cod1, cod2, cid2->cidade.nome);
+                //printf("Cruzamento de %d e %d em: %s\n", cod1, cod2, cid2->cidade.nome);
                 return cid2;
             }
             cid2 = cid2->prox;
