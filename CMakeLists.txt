@@ -4,13 +4,10 @@ project(Rodovias_AED1 C)
 set(CMAKE_C_STANDARD 23)
 
 add_executable(Rodovias_AED1 main.c
-        Rodovias.h
-        Rodovias.c
-        Rodovias.h
-        cidades.c
-        cidades.h
-        Fila.c
-        Fila.h
-        Fila.h
-        Caminhos.c
-        Caminhos.h)
+        headers/Rodovias.h
+        headers/Rodovias.c
+        headers/Rodovias.h
+        headers/cidades.c
+        headers/cidades.h
+        headers/Caminhos.c
+        headers/Caminhos.h)

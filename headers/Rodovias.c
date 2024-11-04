@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <stdbool.h>
-
 
 
 //TODO: MODULARIZAR MAIS AS FUNÇÕES!!!!

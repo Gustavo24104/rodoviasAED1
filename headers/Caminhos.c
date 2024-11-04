@@ -16,36 +16,36 @@ int BuscaBinariaRodovia(int codigo, lista_rodovia lr[], int tam) {
 }
 
 
-
-lista_cidade RotaAux(lista_rodovia rod1, char* cidade1, char* cidade2) { //Cruzamento para cidades na mesma rodovia.
-    lista_cidade c1 = rod1->cidades;
-    while (strcmpi(c1->cidade.nome, cidade1) != 0) c1 = c1->prox;
-    lista_cidade percorrePraFrente = c1, percorrePraTras = c1;
-    lista_cidade praFrente, praTras;
-    InicializaCidades(&praTras);
-    InicializaCidades(&praFrente);
-    while (percorrePraFrente != NULL && percorrePraTras != NULL) { //n
-        //if (percorrePraFrente != NULL) {
-        InsereCidade(&praFrente, percorrePraFrente->cidade);
-        percorrePraFrente = percorrePraFrente->prox;
-        // }
-        //if (percorrePraTras != NULL) {
-        InsereCidade(&praTras, percorrePraTras->cidade);
-        percorrePraTras = percorrePraTras->ant;
-        //}
-        if (percorrePraFrente != NULL && strcmpi(percorrePraFrente->cidade.nome, cidade2) == 0) {
-            InsereCidade(&praFrente, percorrePraFrente->cidade);
-            LiberaListaCidade(&praTras);
-            return praFrente;
-        }
-        if (percorrePraTras != NULL && strcmpi(percorrePraTras->cidade.nome, cidade2) == 0) {
-            InsereCidade(&praTras, percorrePraTras->cidade);
-            LiberaListaCidade(&praFrente);
-            return praTras;
-        }
-    }
-    return NULL;
-}
+//
+//lista_cidade RotaAux(lista_rodovia rod1, char* cidade1, char* cidade2) { //Cruzamento para cidades na mesma rodovia.
+//    lista_cidade c1 = rod1->cidades;
+//    while (strcmpi(c1->cidade.nome, cidade1) != 0) c1 = c1->prox;
+//    lista_cidade percorrePraFrente = c1, percorrePraTras = c1;
+//    lista_cidade praFrente, praTras;
+//    InicializaCidades(&praTras);
+//    InicializaCidades(&praFrente);
+//    while (percorrePraFrente != NULL && percorrePraTras != NULL) { //n
+//        //if (percorrePraFrente != NULL) {
+//        InsereCidade(&praFrente, percorrePraFrente->cidade);
+//        percorrePraFrente = percorrePraFrente->prox;
+//        // }
+//        //if (percorrePraTras != NULL) {
+//        InsereCidade(&praTras, percorrePraTras->cidade);
+//        percorrePraTras = percorrePraTras->ant;
+//        //}
+//        if (percorrePraFrente != NULL && strcmpi(percorrePraFrente->cidade.nome, cidade2) == 0) {
+//            InsereCidade(&praFrente, percorrePraFrente->cidade);
+//            LiberaListaCidade(&praTras);
+//            return praFrente;
+//        }
+//        if (percorrePraTras != NULL && strcmpi(percorrePraTras->cidade.nome, cidade2) == 0) {
+//            InsereCidade(&praTras, percorrePraTras->cidade);
+//            LiberaListaCidade(&praFrente);
+//            return praTras;
+//        }
+//    }
+//    return NULL;
+//}
 
 //int Busca(char *destino, lista_rodovia r) {
 //    lista_cidade aux = r->cidades;
@@ -75,12 +75,6 @@ nodeR* IndexaRodovias(lista_rodovia cabeca, int count) {
     nodeR *aux = cabeca;
     for(; i < count; aux = aux->prox, i++);
     return aux;
-}
-
-int QtidadeCaminho(const int c[]) {
-    int i = 0;
-    while(c[i] != -1) i++;
-    return i;
 }
 
 
@@ -185,6 +179,7 @@ lista_cidade EncontraRotaLocal(nodeC *c1, char* destino) {
 
 
 void ImprimeRota(lista_cidade rota) {
+    if(rota == NULL) return;
     nodeC *carro = rota;
     int lineBreak = 1;
     printf("Caminho desejado:\n"); //Deixar isso mais bonito depois

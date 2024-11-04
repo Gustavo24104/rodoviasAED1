@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "Rodovias.h"
+#include "headers/Rodovias.h"
 #include <string.h>
 #include <locale.h>
-#include "Caminhos.h"
+#include "headers/Caminhos.h"
 
 #define MAX 150
 
@@ -27,8 +27,9 @@ int main() {
 
 
 
-    lista_cidade acaba = EncontraRota("Uberlândia", "MPGP house", cabeca);
+    lista_cidade acaba = EncontraRota("Uberlândia", "California", cabeca);
     if(acaba != NULL) ImprimeRota(acaba);
+
 
 }
 
