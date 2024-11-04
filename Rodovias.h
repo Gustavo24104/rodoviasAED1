@@ -4,6 +4,7 @@
 
 #include "cidades.h"
 
+#define MAX 150
 typedef struct Rodovia {
     int codigo;
     double pedagio; //0 caso nao tenha
@@ -21,15 +22,21 @@ typedef nodeR *lista_rodovia;
 
 int IniciaListaRodoviaVazia(lista_rodovia *li);
 int CarregaRodovias(lista_rodovia *cabeca, void* arq);
-int Cruzamento(lista_rodovia lr,int codigo1, int codigo2, nodeC *codesR1[], nodeC *codesR2[]); //Força bruta
+lista_rodovia AchaCidadePorNome(char* cid, lista_rodovia lr);
 void ImprimeRodovias(lista_rodovia l);
-lista_cidade EncontraRota(char *cidade1, char *cidade2, lista_rodovia rod1, lista_rodovia rod2);
+lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca);
 void ImprimeCidades(lista_cidade l);
 void LiberaListaRodovia(lista_rodovia *lr);
 int RodoviasDaCidade(char* cidade, lista_rodovia lr, nodeR *codes[]);
+int InsereRodoviaInicio(lista_rodovia *li, rodovia rod);
+int InsereRodoviaFinal(lista_rodovia *lr, rodovia rod);
+int ContaRodovias(lista_rodovia c);
+int CriaListaAdjacencia(lista_rodovia lr, nodeR *adj[150], lista_rodovia cabeca);
+nodeC * AchaCruzamento(int cod1, int cod2, lista_rodovia cabeca);
 int CruzamentoPorPonteiro(lista_rodovia l1, lista_rodovia l2, nodeC *codesR1[], nodeC *codesR2[]);
 lista_rodovia AchaRodoviaCodigo(int cod, lista_rodovia lr);
-lista_rodovia AchaRodoviaPorNome(char* cid, lista_rodovia lr);
+
+
 
 
 

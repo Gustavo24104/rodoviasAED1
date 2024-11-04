@@ -3,6 +3,10 @@
 #include "Rodovias.h"
 #include <string.h>
 #include <locale.h>
+#include "Caminhos.h"
+
+#define MAX 150
+
 
 
 int main() {
@@ -19,11 +23,13 @@ int main() {
 
     //ImprimeRodovias(cabeca);
 
-//     = EncontraRota("Uberlândia", "Barretos", cabeca);
-    lista_cidade aa = EncontraRota("California", "Uberlândia",
-                 AchaRodoviaPorNome("California", cabeca), AchaRodoviaPorNome("Uberlândia", cabeca));
-    ImprimeCidades(aa);
-    LiberaListaRodovia(&cabeca);
+    printf("\n");
+
+
+
+    lista_cidade acaba = EncontraRota("Uberlândia", "MPGP house", cabeca);
+    if(acaba != NULL) ImprimeRota(acaba);
+
 }
 
 

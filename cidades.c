@@ -6,7 +6,6 @@
 
 int InsereCidade(lista_cidade *lc, city c) {
     if(lc == NULL) return 1;
-
     nodeC *novo = malloc(sizeof(nodeC));
     novo->cidade = c;
     novo->pai = NULL;
@@ -19,6 +18,27 @@ int InsereCidade(lista_cidade *lc, city c) {
     (*lc)->ant = novo;
     novo->prox = *lc;
     (*lc) = novo;
+    return 0;
+}
+
+int InsereCidadeFinal(lista_cidade *lc, city c) {
+    if(lc == NULL) return 1;
+    nodeC *novo = malloc(sizeof(nodeC));
+    novo->cidade = c;
+    novo->pai = NULL;
+    novo->prox = NULL;
+    novo->ant = NULL;
+    if(*lc == NULL) {
+        *lc = novo;
+        return 0;
+    }
+    nodeC *perc = *lc;
+    while(perc->prox != NULL) perc = perc->prox;
+
+
+    perc->prox = novo;
+    novo->ant = perc;
+
     return 0;
 }
 

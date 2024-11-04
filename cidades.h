@@ -23,5 +23,6 @@ typedef nodeC *lista_cidade;
 int InsereCidade(lista_cidade *lc, city c);
 int InicializaCidades(lista_cidade *lc);
 void LiberaListaCidade(lista_cidade *lc);
+int InsereCidadeFinal(lista_cidade *lc, city c);
 
 #endif //RODOVIAS_AED1_CIDADES_H
