@@ -205,13 +205,15 @@ lista_cidade CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *origem, char
     for(int i = 0; i < qtd - 1; i++) {
         nodeC *intersecc = AchaCruzamento(rodovias[i], rodovias[i + 1], cabeca);
         lista_cidade rotaTemp = EncontraRotaLocal(atual, intersecc->cidade.nome);
+        if(rotaTemp == NULL) return 0;
         atual = intersecc;
         for(nodeC *add = rotaTemp->prox; add != NULL; add = add->prox) {
             InsereCidadeFinal(&roteia, add->cidade);
         }
         //ImprimeCidades(rotaTemp);
     }
-    lista_cidade rotaF = EncontraRotaLocal(atual, destino)->prox;
+    lista_cidade rotaF = EncontraRotaLocal(atual, destino);
+    if(rotaF != NULL) rotaF = rotaF->prox;
     while(rotaF != NULL) {
         InsereCidadeFinal(&roteia, rotaF->cidade);
         rotaF = rotaF->prox;
@@ -266,14 +268,13 @@ lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca) {
         for(int j = 0; j < qtdRodoviasC2; j++) {
             desvios = bfs(rodoviasC1[i], rodoviasC2[j], cabeca, caminhoRodovia);
             if(desvios) {
-                a = 1;
-                break;
+                auto cam = CaminhoEntreRodovias(desvios, caminhoRodovia, origem, destino, cabeca);
+                if(cam != NULL) return cam;
             }
         }
-        if(a == 1) break;
     }
 
-    return CaminhoEntreRodovias(desvios, caminhoRodovia, origem, destino, cabeca);
+    return NULL;
     //Agora, constroi a rota
 }
 
