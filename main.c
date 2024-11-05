@@ -27,8 +27,8 @@ int main() {
 
 
 
-    lista_cidade acaba = EncontraRota("São paulo", "n", cabeca);
-     if(acaba != NULL) ImprimeRota(acaba);
+    lista_cidade acaba = EncontraRota("Ibiá", "Uberlândia", cabeca);
+    if(acaba != NULL) ImprimeRota(acaba);
 
 
 }

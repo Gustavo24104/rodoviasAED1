@@ -150,6 +150,8 @@ int bfs(nodeR *rod1, nodeR *rod2, lista_rodovia cabeca, int caminho[]) {
 }
 
 lista_cidade EncontraRotaLocal(nodeC *c1, char* destino) {
+    //printf("%s", destino);
+    if(c1 == NULL) return NULL;
     lista_cidade percorrePraFrente = c1, percorrePraTras = c1;
     lista_cidade praFrente, praTras;
     InicializaCidades(&praTras);
@@ -204,6 +206,7 @@ lista_cidade CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *origem, char
     InsereCidadeFinal(&roteia, cmc->cidade);
     for(int i = 0; i < qtd - 1; i++) {
         nodeC *intersecc = AchaCruzamento(rodovias[i], rodovias[i + 1], cabeca);
+        if(intersecc == NULL) return NULL;
         lista_cidade rotaTemp = EncontraRotaLocal(atual, intersecc->cidade.nome);
         if(rotaTemp == NULL) return 0;
         atual = intersecc;

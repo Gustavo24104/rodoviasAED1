@@ -120,31 +120,32 @@ int CriaListaAdjacencia(lista_rodovia lr, nodeR *adj[150], lista_rodovia cabeca)
     return tamanhoLimpa;
 }
 
-//Encontra a primeira rodovia que tem uma certa cidade
-lista_rodovia AchaRodoviaPorNome(char* cid, lista_rodovia lr) {
-    lista_rodovia aux = lr;
-    while(aux != NULL){
-        lista_cidade aux2 = aux->cidades;
-        while(aux2 != NULL) {
-            if(strcmpi(cid, aux2->cidade.nome) == 0) return aux;
-            aux2 = aux2->prox;
-        }
-        aux = aux->prox;
-    }
-    return NULL;
-}
-lista_rodovia AchaCidadePorNome(char* cid, lista_rodovia lr) {
-    lista_rodovia aux = lr;
-    while(aux != NULL){
-        lista_cidade aux2 = aux->cidades;
-        while(aux2 != NULL) {
-            if(strcmpi(cid, aux2->cidade.nome) == 0) return aux;
-            aux2 = aux2->prox;
-        }
-        aux = aux->prox;
-    }
-    return NULL;
-}
+////Encontra a primeira rodovia que tem uma certa cidade
+//lista_rodovia AchaRodoviaPorNome(char* cid, lista_rodovia lr) {
+//    lista_rodovia aux = lr;
+//    while(aux != NULL){
+//        lista_cidade aux2 = aux->cidades;
+//        while(aux2 != NULL) {
+//            if(strcmpi(cid, aux2->cidade.nome) == 0) return aux;
+//            aux2 = aux2->prox;
+//        }
+//        aux = aux->prox;
+//    }
+//    return NULL;
+//}
+
+//lista_rodovia AchaCidadePorNome(char* cid, lista_rodovia lr) {
+//    lista_rodovia aux = lr;
+//    while(aux != NULL){
+//        lista_cidade aux2 = aux->cidades;
+//        while(aux2 != NULL) {
+//            if(strcmpi(cid, aux2->cidade.nome) == 0) return aux;
+//            aux2 = aux2->prox;
+//        }
+//        aux = aux->prox;
+//    }
+//    return NULL;
+//}
 
 //Acha rodovias que contem uma cidade e armazena em codes, retornando o tamanho
 int RodoviasDaCidade(char* cidade, lista_rodovia lr, nodeR *codes[]) {
@@ -390,6 +391,7 @@ nodeC* AchaCruzamento(int cod1, int cod2, lista_rodovia cabeca) {
         }
         cid1 = cid1->prox;
     }
+    return NULL;
 }
 
 int CruzamentoPorPonteiro(lista_rodovia l1, lista_rodovia l2, nodeC *codesR1[], nodeC *codesR2[]) {
