@@ -31,6 +31,10 @@ int ContaRodovias(lista_rodovia c);
 int CriaListaAdjacencia(lista_rodovia lr, nodeR *adj[150], lista_rodovia cabeca);
 nodeC * AchaCruzamento(int cod1, int cod2, lista_rodovia cabeca);
 lista_rodovia AchaRodoviaCodigo(int cod, lista_rodovia lr);
+int RemoveRodovia(lista_rodovia *lr, int codigo);
+int EscreveArquivo(lista_rodovia cabeca, char* caminhoArquivo);
+void LiberaListaRodovia(lista_rodovia *lr);
+nodeR* InsereRodoviaOrdenado(lista_rodovia *lr, rodovia rod);
 
 
 

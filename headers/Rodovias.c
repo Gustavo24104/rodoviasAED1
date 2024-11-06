@@ -5,10 +5,33 @@
 #include <stdio.h>
 
 
-//TODO: MODULARIZAR MAIS AS FUNÇÕES!!!!
-//TODO: Função de imprimir rota
-//TODO: Funções de remover
 //TODO: Funções de menu
+
+
+
+
+int EscreveArquivo(lista_rodovia cabeca, char* caminhoArquivo) {
+    //As rodovias devem estar listadas do modo CODIGO-PEDAGIO-TAMANHO-VELOCIDADE
+    //As cidades deverão estar do modo "NOME CIDADE"-DISTANCIA
+    //Números fracionais devem estar separados com vírgula (Ex: 2,4)
+    FILE* arq = fopen(caminhoArquivo, "w");
+    if(arq == NULL) return 1;
+    nodeR *rodovias = cabeca;
+    while(rodovias != NULL) {
+        fprintf(arq, "%03d-%.2lf-%.2lf-%.2lf\n", rodovias->estrada.codigo, rodovias->estrada.pedagio,
+                rodovias->estrada.tamanho, rodovias->estrada.velMedia);
+        nodeC *cidades = rodovias->cidades;
+        while(cidades != NULL) {
+            fprintf(arq,"%s-%.2lf\n", cidades->cidade.nome, cidades->cidade.distanciaProx);
+            cidades = cidades->prox;
+        }
+        fprintf(arq, "\n");
+        rodovias = rodovias->prox;
+    }
+
+    fclose(arq);
+    return 0;
+}
 
 nodeR* InsereRodoviaOrdenado(lista_rodovia *lr, rodovia rod) { //retorna a adicionada
     /* Insere ordenado pra poder fazer busca binaria */
@@ -83,7 +106,12 @@ void LiberaListaRodovia(lista_rodovia *lr) {
 }
 
 int RemoveRodovia(lista_rodovia *lr, int codigo) {
-    //TODO
+    if(lr == NULL) return 1;
+    if((*lr)->estrada.codigo == codigo){
+        *lr = (*lr)->prox;
+        return 0;
+    }
+    return RemoveRodovia(&(*lr)->prox, codigo);
 }
 
 int ElementoNaLista(nodeR *elem, nodeR *r1[], int t){

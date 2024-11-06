@@ -24,5 +24,7 @@ int InsereCidade(lista_cidade *lc, city c);
 int InicializaCidades(lista_cidade *lc);
 void LiberaListaCidade(lista_cidade *lc);
 int InsereCidadeFinal(lista_cidade *lc, city c);
+int RemoveCidade(struct noRodoviario *cabeca, int codigo, char *nomeCidade);
+
 
 #endif //RODOVIAS_AED1_CIDADES_H

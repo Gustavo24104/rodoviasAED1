@@ -184,7 +184,7 @@ void ImprimeRota(lista_cidade rota) {
     if(rota == NULL) return;
     nodeC *carro = rota;
     int lineBreak = 1;
-    printf("Caminho desejado:\n"); //Deixar isso mais bonito depois
+    //printf("Caminho desejado:\n"); //Deixar isso mais bonito depois
     while(carro != NULL) {
         if(carro->prox != NULL) printf("%s -> ", carro->cidade.nome);
         else printf("%s\n", carro->cidade.nome);
@@ -247,11 +247,11 @@ lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca) {
     qtdRodoviasC1 = RodoviasDaCidade(origem, cabeca, rodoviasC1);
     qtdRodoviasC2 = RodoviasDaCidade(destino, cabeca, rodoviasC2);
     if(qtdRodoviasC2 == 0) {
-        printf("A Cidade %s nao encontrada!\n", destino);
+        printf("A Cidade %s não foi encontrada!\n", destino);
         return NULL;
     }
     if(qtdRodoviasC1 == 0) {
-        printf("A Cidade %s não encontrada!\n", origem);
+        printf("A Cidade %s não foi encontrada!\n", origem);
         return NULL;
     }
 
