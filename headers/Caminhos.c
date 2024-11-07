@@ -13,6 +13,7 @@ int BuscaBinariaRodovia(int codigo, lista_rodovia lr[], int tam) {
     if(val == codigo) return 1;
     if(val < codigo) return BuscaBinariaRodovia(codigo, lr + tam/2 + 1, tam/2);
     if(val > codigo) return BuscaBinariaRodovia(codigo, lr, tam/2);
+    return 0; //
 }
 
 //Encontra a posição da rodovia de código _cod_ na lista (ou seja, ja foi visitado)
@@ -141,71 +142,80 @@ lista_cidade EncontraRotaLocal(nodeC *c1, char* destino) {
     while(1) {
         if(percorrePraFrente == NULL && percorrePraTras == NULL) break;
         if(percorrePraFrente != NULL) {
-            InsereCidadeFinal(&praFrente, percorrePraFrente->cidade);
+            InsereCidadeFinal(&praFrente, percorrePraFrente->cidade, c1->pai);
             percorrePraFrente = percorrePraFrente->prox;
         }
         if(percorrePraTras != NULL) {
-            InsereCidadeFinal(&praTras, percorrePraTras->cidade);
+            InsereCidadeFinal(&praTras, percorrePraTras->cidade, c1->pai);
             percorrePraTras = percorrePraTras->ant;
         }
         if(percorrePraFrente != NULL && strcmpi(percorrePraFrente->cidade.nome, destino) == 0) {
-            InsereCidadeFinal(&praFrente, percorrePraFrente->cidade);
+            InsereCidadeFinal(&praFrente, percorrePraFrente->cidade, c1->pai);
             LiberaListaCidade(&praTras);
             return praFrente;
         }
         if(percorrePraTras != NULL && strcmpi(percorrePraTras->cidade.nome, destino) == 0){
-            InsereCidadeFinal(&praTras, percorrePraTras->cidade);
+            InsereCidadeFinal(&praTras, percorrePraTras->cidade, c1->pai);
             LiberaListaCidade(&praFrente);
             return praTras;
         }
     }
+    return NULL;
 }
 
 
-void ImprimeRota(lista_cidade rota, double preco) {
+void ImprimeRota(lista_cidade rota) {
     if(rota == NULL) return;
     double dist = 0;
+    double vMediaT = 0;
+    int qtd = 0;
+    double pr = 0;
     nodeC *carro = rota;
     int lineBreak = 1;
     while(carro != NULL) {
+        pr += carro->pai->estrada.pedagio;
+        vMediaT += carro->pai->estrada.velMedia;
+        dist += carro->cidade.distanciaProx;
         if(carro->prox != NULL) printf("%s -> ", carro->cidade.nome);
         else printf("%s\n", carro->cidade.nome);
-        dist += carro->cidade.distanciaProx;
-        carro = carro->prox;
-        if(lineBreak % 8 == 0) printf("\n");
+        if(lineBreak % 8 == 0) printf("\n-> ");
         lineBreak++;
+        qtd++;
+        carro = carro->prox;
     }
-    printf("Preço esperado:R$%.2lf. Distância esperada: %.2lfKm\n", preco, dist);
+    double tempo = dist/(vMediaT/qtd);
+    printf("Preço esperado:R$%.2lf. Distância esperada: %.2lfKm. Tempo de viagem esperado: %02d:%02d horas\n",
+           pr, dist, (int)tempo, (int)((tempo - (int)tempo)*60));
+
+    LiberaListaCidade(&rota);
 }
 
 //encontra as cidade (caminho) entre as duas rodovias
 lista_cidade
-CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *origem, char *destino, lista_rodovia cabeca, double *preco) {
-    char inicio[100], fim[100];
+CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *origem, char *destino, lista_rodovia cabeca) {
     if(qtd == 0) return 0;
-    *preco = 0;
     lista_cidade cmc = AchaRodoviaCodigo(rodovias[0], cabeca)->cidades, final = AchaRodoviaCodigo(rodovias[qtd-1], cabeca)->cidades;
     while(strcmpi(cmc->cidade.nome, origem) != 0) cmc = cmc->prox;
     while(strcmpi(final->cidade.nome, destino) != 0) final = final->prox;
 
     nodeC *atual = cmc, *roteia = NULL;
-    InsereCidadeFinal(&roteia, cmc->cidade);
+    InsereCidadeFinal(&roteia, cmc->cidade, cmc->pai);
     for(int i = 0; i < qtd - 1; i++) {
         nodeC *intersecc = AchaCruzamento(rodovias[i], rodovias[i + 1], cabeca);
         if(intersecc == NULL) return NULL;
-        *preco += intersecc->pai->estrada.pedagio;
+        //*preco += intersecc->pai->estrada.pedagio;
         lista_cidade rotaTemp = EncontraRotaLocal(atual, intersecc->cidade.nome);
         if(rotaTemp == NULL) return NULL;
         atual = intersecc;
         for(nodeC *add = rotaTemp->prox; add != NULL; add = add->prox) {
-            InsereCidadeFinal(&roteia, add->cidade);
+            InsereCidadeFinal(&roteia, add->cidade, add->pai);
         }
         //ImprimeCidades(rotaTemp);
     }
     lista_cidade rotaF = EncontraRotaLocal(atual, destino);
     if(rotaF != NULL) rotaF = rotaF->prox;
     while(rotaF != NULL) {
-        InsereCidadeFinal(&roteia, rotaF->cidade);
+        InsereCidadeFinal(&roteia, rotaF->cidade, rotaF->pai);
         rotaF = rotaF->prox;
     }
 
@@ -227,9 +237,8 @@ CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *origem, char *destino, li
  * @return rota como uma lista encadeada de cidades (?)
  * @return NULL caso nao exista caminho.
  */
-lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca, double *preco) {
+lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca) {
     nodeR *rodoviasC1[MAX],  *rodoviasC2[MAX];
-    if(preco == NULL) printf("AAAAAAAAA\n");
     int qtdRodoviasC1, qtdRodoviasC2, caminhoRodovia[MAX], desvios;
     lista_cidade c1;
     qtdRodoviasC1 = RodoviasDaCidade(origem, cabeca, rodoviasC1);
@@ -248,7 +257,6 @@ lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca, dou
         if(BuscaBinariaRodovia(rodoviasC1[i]->estrada.codigo, rodoviasC2, qtdRodoviasC2)) {
             c1 = rodoviasC1[i]->cidades;
             while(strcmpi(c1->cidade.nome, origem) != 0) c1 = c1->prox;
-            *preco += rodoviasC1[i]->estrada.pedagio;
             return EncontraRotaLocal(c1, destino);
         }
     }
@@ -261,7 +269,7 @@ lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca, dou
             desvios = bfs(rodoviasC1[i], rodoviasC2[j], cabeca, caminhoRodovia);
             if(desvios) { //retorna o primeiro caminho encontrado
                 auto cam = CaminhoEntreRodovias(desvios, caminhoRodovia, origem,
-                                                destino,cabeca, preco);
+                                                destino,cabeca);
                 if(cam != NULL) return cam;
             }
         }

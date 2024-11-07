@@ -8,28 +8,58 @@
 //TODO: Funções de menu
 
 
-
-
-int EscreveArquivo(lista_rodovia cabeca, char* caminhoArquivo) {
-    //As rodovias devem estar listadas do modo CODIGO-PEDAGIO-TAMANHO-VELOCIDADE
-    //As cidades deverão estar do modo "NOME CIDADE"-DISTANCIA
-    //Números fracionais devem estar separados com vírgula (Ex: 2,4)
-    FILE* arq = fopen(caminhoArquivo, "w");
-    if(arq == NULL) return 1;
-    nodeR *rodovias = cabeca;
-    while(rodovias != NULL) {
-        fprintf(arq, "%03d-%.2lf-%.2lf-%.2lf\n", rodovias->estrada.codigo, rodovias->estrada.pedagio,
-                rodovias->estrada.tamanho, rodovias->estrada.velMedia);
-        nodeC *cidades = rodovias->cidades;
-        while(cidades != NULL) {
-            fprintf(arq,"%s-%.2lf\n", cidades->cidade.nome, cidades->cidade.distanciaProx);
-            cidades = cidades->prox;
-        }
-        fprintf(arq, "\n");
-        rodovias = rodovias->prox;
+int IniciaListaRodoviaVazia(lista_rodovia *li) {
+    *li = malloc(sizeof(lista_rodovia));
+    if(*li == NULL) {
+        printf("Erro de alocacao!\n");
+        return 1;
     }
+    *li = NULL;
+    return 0;
+}
 
-    fclose(arq);
+/**
+ * Insere uma rodovia na lista encadeada no inicio
+ * @param li cabeça da lista
+ * @param rod rodovia a inserir
+ * @return 0 -> Sucesso; 1 -> Erro
+ */
+int InsereRodoviaInicio(lista_rodovia *li, rodovia rod) {
+    nodeR *novo = malloc(sizeof(nodeR));
+    if(novo == NULL) return 0;
+    novo->estrada = rod;
+    novo->prox = NULL;
+    novo->cidades =  NULL;
+    if (InicializaCidades(&(novo->cidades)) == 1) return 1;
+    if(li == NULL) {
+        printf("Lista nao inicializada!\n");
+        return 1;
+    }
+    if(*li == NULL) { //Primeira rodovia da lista
+        *li = novo;
+        return 0;
+    }
+    novo->prox = *li;
+    *li = novo;
+    return 0;
+}
+
+int InsereRodoviaFinal(lista_rodovia *lr, rodovia rod){
+    if(lr == NULL) return 1;
+    if(*lr == NULL) {
+        nodeR *novo = malloc(sizeof(nodeR));
+        if(novo == NULL) return 1;
+        novo->prox = NULL;
+        novo->estrada = rod;
+        *lr = novo;
+        return 0;
+    }
+    if((*lr)->prox != NULL) return InsereRodoviaFinal(&(*lr)->prox, rod);
+    nodeR *novo = malloc(sizeof(nodeR));
+    if(novo == NULL) return 1;
+    novo->prox = NULL;
+    novo->estrada = rod;
+    (*lr)->prox = novo;
     return 0;
 }
 
@@ -70,144 +100,6 @@ nodeR* InsereRodoviaOrdenado(lista_rodovia *lr, rodovia rod) { //retorna a adici
     return novo;
 }
 
-
-int ContaRodovias(lista_rodovia c) {
-    lista_rodovia aux = c;
-    int i = 0;
-    while(c != NULL) {
-        c = c->prox;
-        i++;
-    }
-    return i;
-}
-
-int IniciaListaRodoviaVazia(lista_rodovia *li) {
-    *li = malloc(sizeof(lista_rodovia));
-    if(*li == NULL) {
-        printf("Erro de alocacao!\n");
-        return 1;
-    }
-    *li = NULL;
-    return 0;
-}
-
-
-
-
-
-void LiberaListaRodovia(lista_rodovia *lr) {
-    nodeR *aux = *lr, *freeAux;
-    while(aux != NULL) {
-        freeAux = aux;
-        LiberaListaCidade(&(freeAux->cidades));
-        aux = aux->prox;
-        free(freeAux);
-    }
-    *lr = NULL;
-}
-
-int RemoveRodovia(lista_rodovia *lr, int codigo) {
-    if(lr == NULL) return 1;
-    if((*lr)->estrada.codigo == codigo){
-        *lr = (*lr)->prox;
-        return 0;
-    }
-    return RemoveRodovia(&(*lr)->prox, codigo);
-}
-
-int ElementoNaLista(nodeR *elem, nodeR *r1[], int t){
-    for(int i = 0; i < t; i++){
-        if(r1[i] == elem) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-/**
- * Encontra a lista de adjacencia de uma rodovia qualquer armazenando em adj
- * @param lr
- * @param adj
- * @return tamanho da lista
- */
-int CriaListaAdjacencia(lista_rodovia lr, nodeR *adj[150], lista_rodovia cabeca) {
-
-    //return qtdRodovias;
-    int count = 0, tamanhoLimpa = 0;
-    nodeR *suja[MAX];
-    lista_cidade aux = lr->cidades;
-    //pra cada cidade da rodovia, encontra as outras rodovias que também contem essa cidade e armazena no vetor sujo
-    while(aux != NULL) {
-        count += RodoviasDaCidade(aux->cidade.nome, cabeca, suja + count);
-        aux = aux->prox;
-    }
-
-    //Limpa o vetor, retirando elementos duplicados
-    for(int i = 0; i < count; i++){
-        if(!ElementoNaLista(suja[i], adj, tamanhoLimpa) && suja[i]->estrada.codigo != lr->estrada.codigo) {
-            adj[tamanhoLimpa++] = suja[i];
-        }
-    }
-    return tamanhoLimpa;
-}
-
-
-//Acha rodovias que contem uma cidade e armazena em codes, retornando o tamanho
-int RodoviasDaCidade(char* cidade, lista_rodovia lr, nodeR *codes[]) {
-    int i = 0;
-    lista_rodovia auxR = lr;
-    while(auxR != NULL) {
-        lista_cidade auxC = auxR->cidades;
-        while(auxC != NULL) {
-            if(strcmpi(auxC->cidade.nome, cidade) == 0) {
-                if(codes == NULL) return 0;
-                codes[i++] = auxR;
-            }
-            auxC = auxC->prox;
-        }
-        auxR = auxR->prox;
-    }
-    return i;
-}
-
-/**
- * Insere uma rodovia na lista encadeada no inicio
- * @param li cabeça da lista
- * @param rod rodovia a inserir
- * @return 0 -> Sucesso; 1 -> Erro
- */
-int InsereRodoviaInicio(lista_rodovia *li, rodovia rod) {
-    nodeR *novo = malloc(sizeof(nodeR));
-    if(novo == NULL) return 0;
-    novo->estrada = rod;
-    novo->prox = NULL;
-    novo->cidades =  NULL;
-    if (InicializaCidades(&(novo->cidades)) == 1) return 1;
-    if(li == NULL) {
-        printf("Lista nao inicializada!\n");
-        return 1;
-    }
-    if(*li == NULL) { //Primeira rodovia da lista
-        *li = novo;
-        return 0;
-    }
-    novo->prox = *li;
-    *li = novo;
-    return 0;
-}
-
-
-
-
-lista_rodovia AchaRodoviaCodigo(int cod, lista_rodovia lr) {
-    lista_rodovia aux = lr;
-    while(aux != NULL) {
-        if(aux->estrada.codigo == cod) return aux;
-        aux = aux->prox;
-    }
-    return NULL;
-}
-
 /**
  * Insere uma cidade na rodovia especificada pelo codigo
  * @param lista rodovia
@@ -221,61 +113,29 @@ int InsereCidadeEmRodovia(lista_rodovia lista, city cidade) {
         return 1;
     }
 
-        nodeC *novo = malloc(sizeof(nodeC));
-        if(novo == NULL) {
-            printf("Erro de alocacao!\n");
-            return 1;
-        }
-        novo->cidade = cidade;
-        novo->prox = NULL;
-        novo->ant = NULL;
-        novo->pai = lista;
-        if(lista->cidades == NULL) { //Primeira cidade da rodovia, inserindo na cabeça
-            lista->cidades = novo;
-            return 0;
-        }
-        lista_cidade aux = lista->cidades;
-        while(aux->prox != NULL) {
-            aux = aux->prox;
-        }
-        novo->ant = aux;
-        aux->prox = novo;
+    nodeC *novo = malloc(sizeof(nodeC));
+    if(novo == NULL) {
+        printf("Erro de alocacao!\n");
+        return 1;
+    }
+    novo->cidade = cidade;
+    novo->prox = NULL;
+    novo->ant = NULL;
+    novo->pai = lista;
+    if(lista->cidades == NULL) { //Primeira cidade da rodovia, inserindo na cabeça
+        lista->cidades = novo;
+        return 0;
+    }
+    lista_cidade aux = lista->cidades;
+    while(aux->prox != NULL) {
+        aux = aux->prox;
+    }
+    novo->ant = aux;
+    aux->prox = novo;
 //        lista->cidades->ant = novo;
 //        novo->prox = lista->cidades;
 //        lista->cidades = novo;
-        return 0;
-}
-
-
-int InsereRodoviaFinal(lista_rodovia *lr, rodovia rod){
-    if(lr == NULL) return 1;
-    if(*lr == NULL) {
-        nodeR *novo = malloc(sizeof(nodeR));
-        if(novo == NULL) return 1;
-        novo->prox = NULL;
-        novo->estrada = rod;
-        *lr = novo;
-        return 0;
-    }
-    if((*lr)->prox != NULL) return InsereRodoviaFinal(&(*lr)->prox, rod);
-    nodeR *novo = malloc(sizeof(nodeR));
-    if(novo == NULL) return 1;
-    novo->prox = NULL;
-    novo->estrada = rod;
-    (*lr)->prox = novo;
     return 0;
-}
-
-/**
- * Imprime as rodovias e suas respectivas cidades
- * @param l Rodovia a imprimir
- */
-void ImprimeRodovias(lista_rodovia l) {
-    if(l == NULL) return;
-    printf("Código: BR-%03d. Pedagio: R$%03.2f. Tamanho: %.2lfKm, Velócidade média: %.2lfKm/h\n",
-           l->estrada.codigo, l->estrada.pedagio, l->estrada.tamanho, l->estrada.velMedia);
-    ImprimeCidades(l->cidades);
-    ImprimeRodovias(l->prox);
 }
 
 /**
@@ -339,6 +199,137 @@ int CarregaRodovias(lista_rodovia *cabeca, void* arq) {
     return 0;
 }
 
+lista_rodovia AchaRodoviaCodigo(int cod, lista_rodovia lr) {
+    lista_rodovia aux = lr;
+    while(aux != NULL) {
+        if(aux->estrada.codigo == cod) return aux;
+        aux = aux->prox;
+    }
+    return NULL;
+}
+
+int ContaRodovias(lista_rodovia c) {
+    //lista_rodovia aux = c;
+    int i = 0;
+    while(c != NULL) {
+        c = c->prox;
+        i++;
+    }
+    return i;
+}
+
+int RemoveRodovia(lista_rodovia *lr, int codigo) {
+    if(lr == NULL) return 1;
+    if((*lr)->estrada.codigo == codigo){
+        *lr = (*lr)->prox;
+        return 0;
+    }
+    return RemoveRodovia(&(*lr)->prox, codigo);
+}
+
+int ElementoNaLista(nodeR *elem, nodeR *r1[], int t){
+    for(int i = 0; i < t; i++){
+        if(r1[i] == elem) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+/**
+ * Encontra a lista de adjacencia de uma rodovia qualquer armazenando em adj
+ * @param lr
+ * @param adj
+ * @return tamanho da lista
+ */
+int CriaListaAdjacencia(lista_rodovia lr, nodeR *adj[150], lista_rodovia cabeca) {
+
+    //return qtdRodovias;
+    int count = 0, tamanhoLimpa = 0;
+    nodeR *suja[MAX];
+    lista_cidade aux = lr->cidades;
+    //pra cada cidade da rodovia, encontra as outras rodovias que também contem essa cidade e armazena no vetor sujo
+    while(aux != NULL) {
+        count += RodoviasDaCidade(aux->cidade.nome, cabeca, suja + count);
+        aux = aux->prox;
+    }
+
+    //Limpa o vetor, retirando elementos duplicados
+    for(int i = 0; i < count; i++){
+        if(!ElementoNaLista(suja[i], adj, tamanhoLimpa) && suja[i]->estrada.codigo != lr->estrada.codigo) {
+            adj[tamanhoLimpa++] = suja[i];
+        }
+    }
+    return tamanhoLimpa;
+}
+
+void LiberaListaRodovia(lista_rodovia *lr) {
+    nodeR *aux = *lr, *freeAux;
+    while(aux != NULL) {
+        freeAux = aux;
+        LiberaListaCidade(&(freeAux->cidades));
+        aux = aux->prox;
+        free(freeAux);
+    }
+    *lr = NULL;
+}
+
+//Acha rodovias que contem uma cidade e armazena em codes, retornando o tamanho
+int RodoviasDaCidade(char* cidade, lista_rodovia lr, nodeR *codes[]) {
+    int i = 0;
+    lista_rodovia auxR = lr;
+    while(auxR != NULL) {
+        lista_cidade auxC = auxR->cidades;
+        while(auxC != NULL) {
+            if(strcmpi(auxC->cidade.nome, cidade) == 0) {
+                if(codes == NULL) return 0;
+                codes[i++] = auxR;
+            }
+            auxC = auxC->prox;
+        }
+        auxR = auxR->prox;
+    }
+    return i;
+}
+
+int EscreveArquivo(lista_rodovia cabeca, char* caminhoArquivo) {
+    //As rodovias devem estar listadas do modo CODIGO-PEDAGIO-TAMANHO-VELOCIDADE
+    //As cidades deverão estar do modo "NOME CIDADE"-DISTANCIA
+    //Números fracionais devem estar separados com vírgula (Ex: 2,4)
+    FILE* arq = fopen(caminhoArquivo, "w");
+    if(arq == NULL) return 1;
+    nodeR *rodovias = cabeca;
+    while(rodovias != NULL) {
+        fprintf(arq, "%03d-%.2lf-%.2lf-%.2lf\n", rodovias->estrada.codigo, rodovias->estrada.pedagio,
+                rodovias->estrada.tamanho, rodovias->estrada.velMedia);
+        nodeC *cidades = rodovias->cidades;
+        while(cidades != NULL) {
+            fprintf(arq,"%s-%.2lf\n", cidades->cidade.nome, cidades->cidade.distanciaProx);
+            cidades = cidades->prox;
+        }
+        fprintf(arq, "\n");
+        rodovias = rodovias->prox;
+    }
+
+    fclose(arq);
+    return 0;
+}
+
+
+/**
+ * Imprime as rodovias e suas respectivas cidades
+ * @param l Rodovia a imprimir
+ */
+void ImprimeRodovias(lista_rodovia l) {
+    if(l == NULL) return;
+    printf("Código: BR-%03d. Pedagio: R$%03.2f. Tamanho: %.2lfKm, Velócidade média: %.2lfKm/h\n",
+           l->estrada.codigo, l->estrada.pedagio, l->estrada.tamanho, l->estrada.velMedia);
+    ImprimeCidades(l->cidades);
+    ImprimeRodovias(l->prox);
+}
+
+
 /**
  * Verifica se duas rodovias passam pela mesma cidade.
  * @param codigo1 codigo da primeira rodovia
@@ -355,7 +346,7 @@ int CruzamentoNaCidade(lista_rodovia lr, int codigo1, int codigo2, char *cidade)
             lc1 = aux->cidades;
         }
         if(aux->estrada.codigo == codigo2) {
-                lc2 = aux->cidades;
+            lc2 = aux->cidades;
         }
         if(lc1 != NULL && lc2 != NULL) break;
         aux = aux->prox;
@@ -367,7 +358,7 @@ int CruzamentoNaCidade(lista_rodovia lr, int codigo1, int codigo2, char *cidade)
         lista_cidade aux2 = lc2;
         while(aux2 != NULL) {
             if(strcmpi(lc1->cidade.nome, aux2->cidade.nome) == 0
-            && strcmpi(aux2->cidade.nome, cidade) == 0) {
+               && strcmpi(aux2->cidade.nome, cidade) == 0) {
                 return 1;
             }
             aux2 = aux2->prox;
@@ -415,9 +406,4 @@ int CruzamentoPorPonteiro(lista_rodovia l1, lista_rodovia l2, nodeC *codesR1[], 
     }
     return count;
 }
-
-
-
-
-
 

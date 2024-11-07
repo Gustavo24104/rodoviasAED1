@@ -5,6 +5,16 @@
 #include "Rodovias.h"
 
 
+int InicializaCidades(lista_cidade *lc) {
+    *lc = malloc(sizeof (lista_cidade));
+    if(*lc == NULL) {
+        printf("Erro de alocacao!\n");
+        return 1;
+    }
+    *lc = NULL;
+    return 0;
+}
+
 int InsereCidade(lista_cidade *lc, city c) {
     if(lc == NULL) return 1;
     nodeC *novo = malloc(sizeof(nodeC));
@@ -22,11 +32,11 @@ int InsereCidade(lista_cidade *lc, city c) {
     return 0;
 }
 
-int InsereCidadeFinal(lista_cidade *lc, city c) {
+int InsereCidadeFinal(lista_cidade *lc, city c, nodeR *pai) {
     if(lc == NULL) return 1;
     nodeC *novo = malloc(sizeof(nodeC));
     novo->cidade = c;
-    novo->pai = NULL;
+    novo->pai = pai;
     novo->prox = NULL;
     novo->ant = NULL;
     if(*lc == NULL) {
@@ -54,32 +64,6 @@ void ImprimeCidades(lista_cidade l) {
     printf("    %s | Distancia ate a proxima: %.2fkm.\n", l->cidade.nome, l->cidade.distanciaProx);
     ImprimeCidades(l->prox);
 }
-
-
-int InicializaCidades(lista_cidade *lc) {
-    *lc = malloc(sizeof (lista_cidade));
-    if(*lc == NULL) {
-        printf("Erro de alocacao!\n");
-        return 1;
-    }
-    *lc = NULL;
-    return 0;
-}
-
-void LiberaListaCidade(lista_cidade *lc) {
-    if(lc == NULL) return;
-    if(*lc == NULL) return;
-    nodeC *aux = *lc, *freeAux;
-    while(aux != NULL) {
-        freeAux = aux;
-        aux = aux->prox;
-        free(freeAux);
-    }
-    *lc = NULL;
-    //lc = NULL;
-    free(*lc);
-}
-
 
 /**
  * Remove cidade da rodovia de codigo _codigo_
@@ -115,8 +99,25 @@ int RemoveCidade(lista_rodovia cabeca, int codigo, char *nomeCidade) {
     cidadeARemover->prox->ant = cidadeARemover->ant;
     free(cidadeARemover);
     return 0;
-
 }
+
+
+
+void LiberaListaCidade(lista_cidade *lc) {
+    if(lc == NULL) return;
+    if(*lc == NULL) return;
+    nodeC *aux = *lc, *freeAux;
+    while(aux != NULL) {
+        freeAux = aux;
+        aux = aux->prox;
+        free(freeAux);
+    }
+    *lc = NULL;
+    //lc = NULL;
+    free(*lc);
+}
+
+
 
 
 

@@ -23,7 +23,7 @@ typedef nodeC *lista_cidade;
 int InsereCidade(lista_cidade *lc, city c);
 int InicializaCidades(lista_cidade *lc);
 void LiberaListaCidade(lista_cidade *lc);
-int InsereCidadeFinal(lista_cidade *lc, city c);
+int InsereCidadeFinal(lista_cidade *lc, city c, struct noRodoviario *pai);
 int RemoveCidade(struct noRodoviario *cabeca, int codigo, char *nomeCidade);
 
 

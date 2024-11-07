@@ -1,5 +1,6 @@
-﻿#include <stdio.h>
-#include <stdlib.h>
+﻿#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cert-err34-c"
+#include <stdio.h>
 #include "headers/Rodovias.h"
 #include <string.h>
 #include <locale.h>
@@ -127,7 +128,7 @@ int main() {
                     printf("Rodovia de numero %d nao encontrada!\n", code);
                     continue;
                 }
-                if(InsereCidadeFinal(&rodAInserir->cidades, c) == 0) {
+                if(InsereCidadeFinal(&rodAInserir->cidades, c, nullptr) == 0) {
                     printf("Inserido com sucesso!\n");
                 } else printf("Algo deu errado!\n");
                 continue;
@@ -144,8 +145,7 @@ int main() {
                 fgets(c2, 100, stdin);
                 c1[strlen(c1) - 1] = '\0';
                 c2[strlen(c2) - 1] = '\0';
-                double preco = 0;
-                lista_cidade rota = EncontraRota(c1, c2, cabeca, &preco);
+                lista_cidade rota = EncontraRota(c1, c2, cabeca);
                 if(rota == NULL) {
                     printf("Nao foi possível encontrar rota!\n");
                     continue;
@@ -157,7 +157,7 @@ int main() {
                        "     /  ____ \\ <>     |  ____  \\\n"
                        "    =\\_/ __ \\_\\_______|_/ __ \\__D\n"
                        "________(__)_____________(__)____\n");
-                ImprimeRota(rota, preco);
+                ImprimeRota(rota);
                 continue;
             }
             case 5: {
@@ -281,15 +281,20 @@ int main() {
     //-------------------------------------------Menu-------------------------------------------------------------------
 
 
+
+
     //-------------------------------------------------Finalização------------------------------------------------------
     printf("__\n"
            ".-'--`-._\n"
            "'-O---O--'\n");
     printf("Obrigado! Até mais!\n");
     LiberaListaRodovia(&cabeca);
-
     return 0;
+    //-------------------------------------------------Finalização------------------------------------------------------
+
 }
 
 
 
+
+#pragma clang diagnostic pop
