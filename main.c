@@ -1,18 +1,18 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <stdlib.h>
 #include "headers/Rodovias.h"
 #include <string.h>
 #include <locale.h>
 #include "headers/Caminhos.h"
 #include <unistd.h>
-
 #define MAX 150
 
 
 
 int main() {
+
     //-----------------------------------------Inicialização------------------------------------------------------------
-    setlocale(LC_ALL, "pt_br.UTF8");
+    setlocale(LC_ALL, "pt_br.utf8");
     lista_rodovia cabeca; //<- PONTEIRO PRA RODOVIA
     IniciaListaRodoviaVazia(&cabeca);
     //-----------------------------------------Inicialização------------------------------------------------------------
@@ -38,7 +38,8 @@ int main() {
                "5: Remover rodovia\n"
                "6: Remover cidade de rodovia\n"
                "7: Imprimir rodovias carregadas\n"
-               "8: Grava rodovias e cidades em um arquivo\n");
+               "8: Grava rodovias e cidades em um arquivo\n"
+               "9: Verifica se duas rodovias de cruzam em uma cidade especifica\n");
         scanf("%d", &escolha);
         getchar();
         if(escolha == -1) break;
@@ -143,7 +144,8 @@ int main() {
                 fgets(c2, 100, stdin);
                 c1[strlen(c1) - 1] = '\0';
                 c2[strlen(c2) - 1] = '\0';
-                lista_cidade rota = EncontraRota(c1, c2, cabeca);
+                double preco = 0;
+                lista_cidade rota = EncontraRota(c1, c2, cabeca, &preco);
                 if(rota == NULL) {
                     printf("Nao foi possível encontrar rota!\n");
                     continue;
@@ -155,7 +157,7 @@ int main() {
                        "     /  ____ \\ <>     |  ____  \\\n"
                        "    =\\_/ __ \\_\\_______|_/ __ \\__D\n"
                        "________(__)_____________(__)____\n");
-                ImprimeRota(rota);
+                ImprimeRota(rota, preco);
                 continue;
             }
             case 5: {
@@ -241,12 +243,50 @@ int main() {
                 } else printf("Algo deu errado na escrita no arquivo\n");
                 continue;
             }
+            case 9: {
+                if(cabeca == NULL) {
+                    printf("Não há lista de rodovia carregada\n!");
+                    continue;
+                }
+                int r1, r2;
+                char cid[100];
+                printf("Insira código das rodovias:\n");
+                scanf("%d %d", &r1, &r2);
+                getchar();
+                printf("Insira nome da cidade:\n");
+                fgets(cid, 100, stdin);
+                cid[strlen(cid) - 1] = '\0';
+                int result = CruzamentoNaCidade(cabeca, r1, r2, cid);
+                if(result == 1) {
+                    printf("As rodovias %d %d se cruzam na cidade %s!\n", r1, r2, cid);
+                    continue;
+                }
+                if(result == 0) {
+                    printf("As rodovias não se cruzam na cidade indicada!\n");
+                    continue;
+                }
+                if(result == -1) {
+                    printf("A rodovia %d não existe!\n", r1);
+                    continue;
+                }
+                if(result == -2) {
+                    printf("A rodovia %d não existe!\n", r2);
+                    continue;
+                }
+
+            }
         }
 
     }
     //-------------------------------------------Menu-------------------------------------------------------------------
 
 
+    //-------------------------------------------------Finalização------------------------------------------------------
+    printf("__\n"
+           ".-'--`-._\n"
+           "'-O---O--'\n");
+    printf("Obrigado! Até mais!\n");
+    LiberaListaRodovia(&cabeca);
 
     return 0;
 }

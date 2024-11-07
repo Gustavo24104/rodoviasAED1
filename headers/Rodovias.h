@@ -35,6 +35,7 @@ int RemoveRodovia(lista_rodovia *lr, int codigo);
 int EscreveArquivo(lista_rodovia cabeca, char* caminhoArquivo);
 void LiberaListaRodovia(lista_rodovia *lr);
 nodeR* InsereRodoviaOrdenado(lista_rodovia *lr, rodovia rod);
+int CruzamentoNaCidade(lista_rodovia lr, int codigo1, int codigo2, char *cidade);
 
 
 

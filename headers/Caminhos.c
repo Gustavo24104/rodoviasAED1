@@ -15,61 +15,21 @@ int BuscaBinariaRodovia(int codigo, lista_rodovia lr[], int tam) {
     if(val > codigo) return BuscaBinariaRodovia(codigo, lr, tam/2);
 }
 
-
-//
-//lista_cidade RotaAux(lista_rodovia rod1, char* cidade1, char* cidade2) { //Cruzamento para cidades na mesma rodovia.
-//    lista_cidade c1 = rod1->cidades;
-//    while (strcmpi(c1->cidade.nome, cidade1) != 0) c1 = c1->prox;
-//    lista_cidade percorrePraFrente = c1, percorrePraTras = c1;
-//    lista_cidade praFrente, praTras;
-//    InicializaCidades(&praTras);
-//    InicializaCidades(&praFrente);
-//    while (percorrePraFrente != NULL && percorrePraTras != NULL) { //n
-//        //if (percorrePraFrente != NULL) {
-//        InsereCidade(&praFrente, percorrePraFrente->cidade);
-//        percorrePraFrente = percorrePraFrente->prox;
-//        // }
-//        //if (percorrePraTras != NULL) {
-//        InsereCidade(&praTras, percorrePraTras->cidade);
-//        percorrePraTras = percorrePraTras->ant;
-//        //}
-//        if (percorrePraFrente != NULL && strcmpi(percorrePraFrente->cidade.nome, cidade2) == 0) {
-//            InsereCidade(&praFrente, percorrePraFrente->cidade);
-//            LiberaListaCidade(&praTras);
-//            return praFrente;
-//        }
-//        if (percorrePraTras != NULL && strcmpi(percorrePraTras->cidade.nome, cidade2) == 0) {
-//            InsereCidade(&praTras, percorrePraTras->cidade);
-//            LiberaListaCidade(&praFrente);
-//            return praTras;
-//        }
-//    }
-//    return NULL;
-//}
-
-//int Busca(char *destino, lista_rodovia r) {
-//    lista_cidade aux = r->cidades;
-//    while(aux != NULL) {
-//        if(strcmpi(aux->cidade.nome, destino) == 0) return 1;
-//        aux = aux->prox;
-//    }
-//    return 0;
-//}
-
-
+//Encontra a posição da rodovia de código _cod_ na lista (ou seja, ja foi visitado)
 int EncontraIndice(lista_rodovia cabeca, int cod){
     int i = 0;
     for(nodeR *aux = cabeca; aux->estrada.codigo != cod; aux = aux->prox, i++);
     return i;
 }
 
+//Verifica se o codigo da rodovia ja esta na lista
 int CodigoMarcado(int cod, nodeR listaMarcados[], int qtd) {
     for(int i = 0; i < qtd; i++) {
         if(listaMarcados[i].estrada.codigo == cod) return 1;
     }
     return 0;
 }
-
+//Retorna a rodovia de N° _count_  na lista
 nodeR* IndexaRodovias(lista_rodovia cabeca, int count) {
     int i = 0;
     nodeR *aux = cabeca;
@@ -77,13 +37,13 @@ nodeR* IndexaRodovias(lista_rodovia cabeca, int count) {
     return aux;
 }
 
-
+//Realiza uma busca em largura nas rodovias
 int bfs(nodeR *rod1, nodeR *rod2, lista_rodovia cabeca, int caminho[]) {
     if (rod1 == NULL || rod2 == NULL) return 0;
     int qtdRods = ContaRodovias(cabeca);
+    //Usaremos um vetor de lista de adjacencias para representar o grafo
     lista_rodovia listaAdj[qtdRods];
     for (int i = 0; i < qtdRods; i++) {
-        //IniciaListaRodoviaVazia(&listaAdj[i]);
         listaAdj[i] = NULL;
     }
 
@@ -91,39 +51,55 @@ int bfs(nodeR *rod1, nodeR *rod2, lista_rodovia cabeca, int caminho[]) {
     for(int i = 0; i < qtdRods; i++, aux = aux->prox) {
         nodeR *listaAux[MAX];
         int v = CriaListaAdjacencia(aux, listaAux, cabeca);
-        for(int j = 0; j < v; j++){
+        for(int j = 0; j < v; j++){ //Insere as adjacencias, criando a verdadeira lista encadeada
             InsereRodoviaFinal(&listaAdj[i], listaAux[j]->estrada);
         }
     }
-    //Busca em largua ---------------------------------------------------------------------------------------
+    //Busca em largura ---------------------------------------------------------------------------------------
+    /*As rodovias sao representadas por um vetor de lista de ajdacencia e "indexadas" pois estão em ordem, então:
+     * 010 = indice 0
+     * 050 = indice 1
+     * 123 = indice 2
+     * etc...
+     * Dessa forma, podemos achar a lista que corresponde ao vetor percorrendo a lista e procurando a de código adequado
+     */
+
+    //marcados é o vetor que armazena as rodovias ja visitadas, numVisitados a qtidade
     nodeR marcados[MAX]; int numVisitados = 0;
+    //Usaremos uma fila simples para saber quais rodovias devemos visitar em qual ordem
     nodeR *fila[MAX]; int inicio = 0, fim = 0;
+    //Usado para verificar se um caminho foi encontrado
     int ach = 0;
+    //Armazena os códigos dos "pais" das rodovias encontradas, usado para encontrar o caminho depois
+    //funciona similar ao vetor de adjacencia, onde cada indice representa a posição da rodovia na lista
     int anteriores[qtdRods];
-    for(int i = 0; i < qtdRods; i++) anteriores[i] = -1;
-    marcados[numVisitados++] = *IndexaRodovias(cabeca, EncontraIndice(cabeca, rod1->estrada.codigo));
-    fila[fim++] = IndexaRodovias(cabeca, EncontraIndice(cabeca, rod1->estrada.codigo));
-    while(inicio < fim) {
-        nodeR *at = fila[inicio++];
+    for(int i = 0; i < qtdRods; i++) anteriores[i] = -1; //-1 para representar que não foi visitado.
+    marcados[numVisitados++] = *IndexaRodovias(cabeca, EncontraIndice(cabeca, rod1->estrada.codigo)); //Marca a primeira rodovia
+    fila[fim++] = IndexaRodovias(cabeca, EncontraIndice(cabeca, rod1->estrada.codigo)); //Insere a primeira rodovia na fila
+    while(inicio < fim) { //Enquanto a fila estiver vazia
+        nodeR *at = fila[inicio++]; //Visita o nó no inicio da fila
+        //Usamos a lista de adjacencia para encontrar os vizinhos da rodovia e percorre-lá
         nodeR *vizinhos = listaAdj[EncontraIndice(cabeca,at->estrada.codigo)];
-        while(vizinhos != NULL){
+        while(vizinhos != NULL){ //percorre os vizinhos
             if(!CodigoMarcado(vizinhos->estrada.codigo, marcados, numVisitados)){
+                //Marca que visitou o vizinho e coloca ele na fila
                 marcados[numVisitados++] = *vizinhos;
                 fila[fim++] = vizinhos;
+                //Armazena o "pai" do nó visitado para percorrer o caminho depois
                 anteriores[EncontraIndice(cabeca, vizinhos->estrada.codigo)] = at->estrada.codigo;
-                if(vizinhos->estrada.codigo == rod2->estrada.codigo) {
-                    inicio = fim + 1;
+                if(vizinhos->estrada.codigo == rod2->estrada.codigo) { //Se ele encontrar a rota
+                    inicio = fim + 1; //Usado para parar o laço de cima
                     ach = 1;
-                    break;
+                    break; //para de procurar
                 }
             }
-            vizinhos = vizinhos->prox;
+            vizinhos = vizinhos->prox; //passa pro proximo vizinho na lista
         }
     }
     //----------------------------------------------------------------------------------------------------------------
     if(ach == 0) return 0;
 
-    //talvez os caminhos agora
+    //anda pra trás por meio dos anteriores de cada nó para encontrar o caminho certo
     int c = EncontraIndice(cabeca, rod2->estrada.codigo);
     int qtdCaminho = 0;
     caminho[qtdCaminho++] = rod2->estrada.codigo;
@@ -131,12 +107,15 @@ int bfs(nodeR *rod1, nodeR *rod2, lista_rodovia cabeca, int caminho[]) {
         caminho[qtdCaminho++] = anteriores[c];
         c = EncontraIndice(cabeca, anteriores[c]);
     }
+
+    //inverto o caminho, pois encontramos o caminho "de tras pra frente"
     for (int i = 0; i < qtdCaminho / 2; i++) {
         int swap = caminho[i];
         caminho[i] = caminho[qtdCaminho - i - 1];
         caminho[qtdCaminho - i - 1] = swap;
     }
 
+    //libera a memória alocada na função
     for(int i = 0; i < qtdRods; i++) {
         nodeR *destruidor = listaAdj[i];
         while(destruidor != NULL) {
@@ -149,6 +128,7 @@ int bfs(nodeR *rod1, nodeR *rod2, lista_rodovia cabeca, int caminho[]) {
     return qtdCaminho;
 }
 
+//usado para encontrar a rota entre duas cidades na mesma rodovia
 lista_cidade EncontraRotaLocal(nodeC *c1, char* destino) {
     //printf("%s", destino);
     if(c1 == NULL) return NULL;
@@ -156,8 +136,10 @@ lista_cidade EncontraRotaLocal(nodeC *c1, char* destino) {
     lista_cidade praFrente, praTras;
     InicializaCidades(&praTras);
     InicializaCidades(&praFrente);
+    //tem um funcionamento simples, procura pra tras e pra frente ate achar uma cidade com o nome requisitado
+    //Armazenando o caminho em variaveis diferentes para depois retornar o apropriado
     while(1) {
-        if(percorrePraFrente == NULL && percorrePraTras == NULL) break; //Isso aqui n eh pra acontecer nunca KKKKKKKK
+        if(percorrePraFrente == NULL && percorrePraTras == NULL) break;
         if(percorrePraFrente != NULL) {
             InsereCidadeFinal(&praFrente, percorrePraFrente->cidade);
             percorrePraFrente = percorrePraFrente->prox;
@@ -180,35 +162,40 @@ lista_cidade EncontraRotaLocal(nodeC *c1, char* destino) {
 }
 
 
-void ImprimeRota(lista_cidade rota) {
+void ImprimeRota(lista_cidade rota, double preco) {
     if(rota == NULL) return;
+    double dist = 0;
     nodeC *carro = rota;
     int lineBreak = 1;
-    //printf("Caminho desejado:\n"); //Deixar isso mais bonito depois
     while(carro != NULL) {
         if(carro->prox != NULL) printf("%s -> ", carro->cidade.nome);
         else printf("%s\n", carro->cidade.nome);
+        dist += carro->cidade.distanciaProx;
         carro = carro->prox;
         if(lineBreak % 8 == 0) printf("\n");
         lineBreak++;
     }
+    printf("Preço esperado:R$%.2lf. Distância esperada: %.2lfKm\n", preco, dist);
 }
 
-
-lista_cidade CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *origem, char *destino, lista_rodovia cabeca) {
+//encontra as cidade (caminho) entre as duas rodovias
+lista_cidade
+CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *origem, char *destino, lista_rodovia cabeca, double *preco) {
     char inicio[100], fim[100];
     if(qtd == 0) return 0;
+    *preco = 0;
     lista_cidade cmc = AchaRodoviaCodigo(rodovias[0], cabeca)->cidades, final = AchaRodoviaCodigo(rodovias[qtd-1], cabeca)->cidades;
     while(strcmpi(cmc->cidade.nome, origem) != 0) cmc = cmc->prox;
     while(strcmpi(final->cidade.nome, destino) != 0) final = final->prox;
-    int tamanhoRota = 0;
+
     nodeC *atual = cmc, *roteia = NULL;
     InsereCidadeFinal(&roteia, cmc->cidade);
     for(int i = 0; i < qtd - 1; i++) {
         nodeC *intersecc = AchaCruzamento(rodovias[i], rodovias[i + 1], cabeca);
         if(intersecc == NULL) return NULL;
+        *preco += intersecc->pai->estrada.pedagio;
         lista_cidade rotaTemp = EncontraRotaLocal(atual, intersecc->cidade.nome);
-        if(rotaTemp == NULL) return 0;
+        if(rotaTemp == NULL) return NULL;
         atual = intersecc;
         for(nodeC *add = rotaTemp->prox; add != NULL; add = add->prox) {
             InsereCidadeFinal(&roteia, add->cidade);
@@ -240,8 +227,9 @@ lista_cidade CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *origem, char
  * @return rota como uma lista encadeada de cidades (?)
  * @return NULL caso nao exista caminho.
  */
-lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca) {
+lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca, double *preco) {
     nodeR *rodoviasC1[MAX],  *rodoviasC2[MAX];
+    if(preco == NULL) printf("AAAAAAAAA\n");
     int qtdRodoviasC1, qtdRodoviasC2, caminhoRodovia[MAX], desvios;
     lista_cidade c1;
     qtdRodoviasC1 = RodoviasDaCidade(origem, cabeca, rodoviasC1);
@@ -260,6 +248,7 @@ lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca) {
         if(BuscaBinariaRodovia(rodoviasC1[i]->estrada.codigo, rodoviasC2, qtdRodoviasC2)) {
             c1 = rodoviasC1[i]->cidades;
             while(strcmpi(c1->cidade.nome, origem) != 0) c1 = c1->prox;
+            *preco += rodoviasC1[i]->estrada.pedagio;
             return EncontraRotaLocal(c1, destino);
         }
     }
@@ -267,17 +256,17 @@ lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca) {
 
     //rodovias separadas:
     for(int i = 0; i < qtdRodoviasC1; i++) {
-        int a = 0;
+        //double preco = 0;
         for(int j = 0; j < qtdRodoviasC2; j++) {
             desvios = bfs(rodoviasC1[i], rodoviasC2[j], cabeca, caminhoRodovia);
-            if(desvios) {
-                auto cam = CaminhoEntreRodovias(desvios, caminhoRodovia, origem, destino, cabeca);
+            if(desvios) { //retorna o primeiro caminho encontrado
+                auto cam = CaminhoEntreRodovias(desvios, caminhoRodovia, origem,
+                                                destino,cabeca, preco);
                 if(cam != NULL) return cam;
             }
         }
     }
 
     return NULL;
-    //Agora, constroi a rota
 }
 

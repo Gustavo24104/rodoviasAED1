@@ -8,8 +8,8 @@
 #include "cidades.h"
 
 
-lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca);
+lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca, double *preco);
 
-void ImprimeRota(lista_cidade rota);
+void ImprimeRota(lista_cidade rota, double preco);
 
 #endif //RODOVIAS_AED1_CAMINHOS_H
