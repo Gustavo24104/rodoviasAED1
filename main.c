@@ -16,6 +16,11 @@ int main() {
     setlocale(LC_ALL, "pt_br.utf8");
     lista_rodovia cabeca; //<- PONTEIRO PRA RODOVIA
     IniciaListaRodoviaVazia(&cabeca);
+    FILE *a;
+    a = fopen("rodovias.txt", "r");
+    CarregaRodovias(&cabeca, a);
+    EncontraRota("belo horizonte", "uberaba", cabeca);
+    return 0;
     //-----------------------------------------Inicialização------------------------------------------------------------
 
 

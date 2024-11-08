@@ -195,8 +195,15 @@ lista_cidade
 CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *origem, char *destino, lista_rodovia cabeca) {
     if(qtd == 0) return 0;
     lista_cidade cmc = AchaRodoviaCodigo(rodovias[0], cabeca)->cidades, final = AchaRodoviaCodigo(rodovias[qtd-1], cabeca)->cidades;
-    while(strcmpi(cmc->cidade.nome, origem) != 0) cmc = cmc->prox;
-    while(strcmpi(final->cidade.nome, destino) != 0) final = final->prox;
+
+    while(strcmpi(cmc->cidade.nome, origem) != 0) {
+        cmc = cmc->prox;
+        if(cmc == NULL) return NULL;
+    }
+    while(strcmpi(final->cidade.nome, destino) != 0) {
+        final = final->prox;
+        if(final == NULL) return NULL;
+    }
 
     nodeC *atual = cmc, *roteia = NULL;
     InsereCidadeFinal(&roteia, cmc->cidade, cmc->pai);
@@ -210,16 +217,16 @@ CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *origem, char *destino, li
         for(nodeC *add = rotaTemp->prox; add != NULL; add = add->prox) {
             InsereCidadeFinal(&roteia, add->cidade, add->pai);
         }
-        //ImprimeCidades(rotaTemp);
+        LiberaListaCidade(&rotaTemp);
     }
     lista_cidade rotaF = EncontraRotaLocal(atual, destino);
     if(rotaF != NULL) rotaF = rotaF->prox;
     while(rotaF != NULL) {
         InsereCidadeFinal(&roteia, rotaF->cidade, rotaF->pai);
+        auto f = rotaF;
         rotaF = rotaF->prox;
+        free(f);
     }
-
-
     return roteia;
     //ImprimeCidades(rotaF);
 }
