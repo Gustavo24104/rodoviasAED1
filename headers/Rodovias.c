@@ -351,21 +351,28 @@ int CruzamentoNaCidade(lista_rodovia lr, int codigo1, int codigo2, char *cidade)
         if(lc1 != NULL && lc2 != NULL) break;
         aux = aux->prox;
     }
+
     if(lc1 == NULL) return -1;
     if(lc2 == NULL) return -2;
+    int ac1 = 0, ac2 = 0;
+    lista_cidade aux2 = lc2;
 
     while(lc1 != NULL) {
-        lista_cidade aux2 = lc2;
-        while(aux2 != NULL) {
-            if(strcmpi(lc1->cidade.nome, aux2->cidade.nome) == 0
-               && strcmpi(aux2->cidade.nome, cidade) == 0) {
-                return 1;
-            }
-            aux2 = aux2->prox;
+        if(strcmpi(lc1->cidade.nome, cidade) == 0) {
+            ac1 = 1;
+            break;
         }
         lc1 = lc1->prox;
     }
-    return 0;
+
+    while(aux2 != NULL) {
+        if(strcmpi(aux2->cidade.nome, cidade) == 0) {
+            ac2 = 1;
+            break;
+        }
+        aux2 = aux2->prox;
+    }
+    return ac1 && ac2;
 }
 
 nodeC* AchaCruzamento(int cod1, int cod2, lista_rodovia cabeca) {
@@ -379,7 +386,6 @@ nodeC* AchaCruzamento(int cod1, int cod2, lista_rodovia cabeca) {
         nodeC *cid2 = r2->cidades;
         while(cid2 != NULL) {
             if(strcmpi(cid1->cidade.nome, cid2->cidade.nome) == 0) {
-                //printf("Cruzamento de %d e %d em: %s\n", cod1, cod2, cid2->cidade.nome);
                 return cid2;
             }
             cid2 = cid2->prox;

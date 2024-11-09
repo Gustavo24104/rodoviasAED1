@@ -195,7 +195,8 @@ void ImprimeRota(lista_cidade rota) {
 lista_cidade
 CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *origem, char *destino, lista_rodovia cabeca) {
     if(qtd == 0) return 0;
-    lista_cidade cmc = AchaRodoviaCodigo(rodovias[0], cabeca)->cidades, final = AchaRodoviaCodigo(rodovias[qtd-1], cabeca)->cidades;
+    lista_cidade cmc = AchaRodoviaCodigo(rodovias[0], cabeca)->cidades,
+    final = AchaRodoviaCodigo(rodovias[qtd-1], cabeca)->cidades;
 
     while(strcmpi(cmc->cidade.nome, origem) != 0) {
         cmc = cmc->prox;
@@ -207,8 +208,8 @@ CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *origem, char *destino, li
     }
 
     nodeC *atual = cmc, *roteia = NULL;
-    InsereCidadeFinal(&roteia, cmc->cidade, cmc->pai);
-    for(int i = 0; i < qtd - 1; i++) {
+    InsereCidadeFinal(&roteia, cmc->cidade, cmc->pai); //rota entre as duas primeiras cidades
+    for(int i = 0; i < qtd - 1; i++) { //acha as rotas "do meio"
         nodeC *intersecc = AchaCruzamento(rodovias[i], rodovias[i + 1], cabeca);
         if(intersecc == NULL) return NULL;
         //*preco += intersecc->pai->estrada.pedagio;
@@ -220,7 +221,8 @@ CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *origem, char *destino, li
         }
         LiberaListaCidade(&rotaTemp);
     }
-    lista_cidade rotaF = EncontraRotaLocal(atual, destino);
+
+    lista_cidade rotaF = EncontraRotaLocal(atual, destino); //rota entre as ultimas duas cidades
     if(rotaF != NULL) rotaF = rotaF->prox;
     while(rotaF != NULL) {
         InsereCidadeFinal(&roteia, rotaF->cidade, rotaF->pai);
@@ -249,8 +251,8 @@ lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca) {
     nodeR *rodoviasC1[MAX],  *rodoviasC2[MAX];
     int qtdRodoviasC1, qtdRodoviasC2, caminhoRodovia[MAX], desvios;
     lista_cidade c1;
-    qtdRodoviasC1 = RodoviasDaCidade(origem, cabeca, rodoviasC1);
-    qtdRodoviasC2 = RodoviasDaCidade(destino, cabeca, rodoviasC2);
+    qtdRodoviasC1 = RodoviasDaCidade(origem, cabeca, rodoviasC1); //rodovias que passam na origem
+    qtdRodoviasC2 = RodoviasDaCidade(destino, cabeca, rodoviasC2);//rodovias que passam no destino
     if(qtdRodoviasC2 == 0) {
         printf("A Cidade %s não foi encontrada!\n", destino);
         return NULL;
@@ -260,19 +262,19 @@ lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca) {
         return NULL;
     }
 
-    //caso as cidades estejam na mesma rodovia:
+    //tenta buscar o caminho na msm rodovia
     for(int i = 0; i < qtdRodoviasC1; i++) {
-        if(BuscaBinariaRodovia(rodoviasC1[i]->estrada.codigo, rodoviasC2, qtdRodoviasC2)) {
+        //if(BuscaBinariaRodovia(rodoviasC1[i]->estrada.codigo, rodoviasC2, qtdRodoviasC2)) {
             c1 = rodoviasC1[i]->cidades;
             while(strcmpi(c1->cidade.nome, origem) != 0) c1 = c1->prox;
-            return EncontraRotaLocal(c1, destino);
-        }
+            lista_cidade lc = EncontraRotaLocal(c1, destino);
+            if(lc != NULL) return lc;
+        //}
     }
 
 
     //rodovias separadas:
     for(int i = 0; i < qtdRodoviasC1; i++) {
-        //double preco = 0;
         for(int j = 0; j < qtdRodoviasC2; j++) {
             desvios = bfs(rodoviasC1[i], rodoviasC2[j], cabeca, caminhoRodovia);
             if(desvios) { //retorna o primeiro caminho encontrado
@@ -282,7 +284,6 @@ lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca) {
             }
         }
     }
-
     return NULL;
 }
 
