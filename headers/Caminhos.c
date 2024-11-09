@@ -184,6 +184,7 @@ void ImprimeRota(lista_cidade rota) {
         carro = carro->prox;
     }
     double tempo = dist/(vMediaT/qtd);
+    if(tempo < 0) tempo = 0; //correção caso algum dos valores seja 0
     printf("Preço esperado:R$%.2lf. Distância esperada: %.2lfKm. Tempo de viagem esperado: %02d:%02d horas\n",
            pr, dist, (int)tempo, (int)((tempo - (int)tempo)*60));
 

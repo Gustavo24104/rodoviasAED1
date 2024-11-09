@@ -6,6 +6,7 @@
 #include <locale.h>
 #include "headers/Caminhos.h"
 #include <unistd.h>
+#include <stdlib.h>
 #define MAX 150
 
 
@@ -16,11 +17,6 @@ int main() {
     setlocale(LC_ALL, "pt_br.utf8");
     lista_rodovia cabeca; //<- PONTEIRO PRA RODOVIA
     IniciaListaRodoviaVazia(&cabeca);
-    FILE *a;
-    a = fopen("rodovias.txt", "r");
-    CarregaRodovias(&cabeca, a);
-    EncontraRota("belo horizonte", "uberaba", cabeca);
-    return 0;
     //-----------------------------------------Inicialização------------------------------------------------------------
 
 
@@ -35,7 +31,7 @@ int main() {
 
     int escolha = 0;
     while(1) {
-        printf("\n Faça sua seleção:\n"
+        printf("\nFaça sua seleção:\n"
                "-1: Sair\n"
                "1: Ler cidades e rodovias de um arquivo\n"
                "2: Inserir rodovia\n"
@@ -43,9 +39,10 @@ int main() {
                "4: Encontrar rota entre duas cidades\n"
                "5: Remover rodovia\n"
                "6: Remover cidade de rodovia\n"
-               "7: Imprimir rodovias carregadas\n"
-               "8: Grava rodovias e cidades em um arquivo\n"
-               "9: Verifica se duas rodovias de cruzam em uma cidade especifica\n");
+               "7: Imprimir todas rodovias carregadas\n"
+               "8: Imprimir rodovia especifica\n"
+               "9: Gravar rodovias e cidades em um arquivo\n"
+               "10: Verificar se duas rodovias de cruzam em uma cidade especifica\n");
         scanf("%d", &escolha);
         getchar();
         if(escolha == -1) break;
@@ -78,6 +75,10 @@ int main() {
                 if(carregar == 0) continue;
                 char nomeArquivo[150];
                 printf("Insira nome do arquivo (incluindo extensão) que você deseja ler:\n");
+                printf("Aviso! o arquivo deve estar formatado da seguinte maneira:\n"
+                       "\"CODIGO-PEDAGIO-TAMANHO-VELOCIDADE\", nas linhas subsequentes estarão as ciades que compoõem a rodovia\n"
+                       "\"NOME CIDADE-DISTANCIA\"\n"
+                       "Lembrando que a cidade deve ter nome sem caracteres especiais\n");
                 fgets(nomeArquivo, 150, stdin);
                 nomeArquivo[strlen(nomeArquivo) - 1] = '\0';
                 FILE *arq = fopen(nomeArquivo, "r");
@@ -133,7 +134,7 @@ int main() {
                     printf("Rodovia de numero %d nao encontrada!\n", code);
                     continue;
                 }
-                if(InsereCidadeFinal(&rodAInserir->cidades, c, nullptr) == 0) {
+                if(InsereCidadeFinal(&rodAInserir->cidades, c, AchaRodoviaCodigo(code, cabeca)) == 0) {
                     printf("Inserido com sucesso!\n");
                 } else printf("Algo deu errado!\n");
                 continue;
@@ -218,10 +219,30 @@ int main() {
             }
             case 8: {
                 if(cabeca == NULL) {
+                    printf("Lista de rodovias vazias!\n");
+                    continue;
+                }
+                printf("Insira código da cidade que deseja imprimir:\n");
+                int c;
+                scanf("%d", &c);
+                getchar();
+                nodeR *imp = AchaRodoviaCodigo(c, cabeca);
+                if(imp == NULL) {
+                    printf("Rodovia %d não encontrada!\n", c);
+                    continue;
+                }
+                printf("Código: BR-%03d. Pedagio: R$%03.2f. Tamanho: %.2lfKm, Velócidade média: %.2lfKm/h\n",
+                       imp->estrada.codigo, imp->estrada.pedagio, imp->estrada.tamanho, imp->estrada.velMedia);
+                ImprimeCidades(imp->cidades);
+                continue;
+            }
+            case 9: {
+                if(cabeca == NULL) {
                     printf("Nao há rodovia carregada!\n");
                     continue;
                 }
                 printf("Insira nome do arquivo (incluindo extensao):\n");
+
                 char caminhoArq[100];
                 fgets(caminhoArq, 100, stdin);
                 caminhoArq[strlen(caminhoArq) - 1] = '\0';
@@ -248,7 +269,7 @@ int main() {
                 } else printf("Algo deu errado na escrita no arquivo\n");
                 continue;
             }
-            case 9: {
+            case 10: {
                 if(cabeca == NULL) {
                     printf("Não há lista de rodovia carregada\n!");
                     continue;
@@ -294,6 +315,7 @@ int main() {
            "'-O---O--'\n");
     printf("Obrigado! Até mais!\n");
     LiberaListaRodovia(&cabeca);
+    free(cabeca);
     return 0;
     //-------------------------------------------------Finalização------------------------------------------------------
 
