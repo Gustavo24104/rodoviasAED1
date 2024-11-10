@@ -17,6 +17,7 @@ int main() {
     setlocale(LC_ALL, "pt_br.utf8");
     lista_rodovia cabeca; //<- PONTEIRO PRA RODOVIA
     IniciaListaRodoviaVazia(&cabeca);
+
     //-----------------------------------------Inicialização------------------------------------------------------------
 
 
@@ -49,6 +50,7 @@ int main() {
 
         switch (escolha) {
             default : {
+                printf("Opção invalida!\n");
                 continue;
             }
             case -1:

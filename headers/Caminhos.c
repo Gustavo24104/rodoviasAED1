@@ -5,16 +5,16 @@
 #include "cidades.h"
 #include <string.h>
 
-
-int BuscaBinariaRodovia(int codigo, lista_rodovia lr[], int tam) {
-    if(lr == NULL || tam == 0 || lr[1] == NULL) return 0;
-    //if(tam == 1) return 0;
-    auto val = lr[(int)tam/2]->estrada.codigo;
-    if(val == codigo) return 1;
-    if(val < codigo) return BuscaBinariaRodovia(codigo, lr + tam/2 + 1, tam/2);
-    if(val > codigo) return BuscaBinariaRodovia(codigo, lr, tam/2);
-    return 0; //
-}
+//
+//int BuscaBinariaRodovia(int codigo, lista_rodovia lr[], int tam) {
+//    if(lr == NULL || tam == 0 || lr[1] == NULL) return 0;
+//    //if(tam == 1) return 0;
+//    auto val = lr[(int)tam/2]->estrada.codigo;
+//    if(val == codigo) return 1;
+//    if(val < codigo) return BuscaBinariaRodovia(codigo, lr + tam/2 + 1, tam/2);
+//    if(val > codigo) return BuscaBinariaRodovia(codigo, lr, tam/2);
+//    return 0; //
+//}
 
 //Encontra a posição da rodovia de código _cod_ na lista (ou seja, ja foi visitado)
 int EncontraIndice(lista_rodovia cabeca, int cod){
@@ -169,11 +169,12 @@ void ImprimeRota(lista_cidade rota) {
     double dist = 0;
     double vMediaT = 0;
     int qtd = 0;
-    double pr = 0;
+    nodeR *pAnt = NULL; //pra evitar que ele fica somando pedagio de rodovia que ja passou
     nodeC *carro = rota;
+    double pr = 0;
     int lineBreak = 1;
     while(carro != NULL) {
-        pr += carro->pai->estrada.pedagio;
+        if(pAnt != carro->pai) pr += carro->pai->estrada.pedagio;
         vMediaT += carro->pai->estrada.velMedia;
         dist += carro->cidade.distanciaProx;
         if(carro->prox != NULL) printf("%s -> ", carro->cidade.nome);
@@ -181,6 +182,7 @@ void ImprimeRota(lista_cidade rota) {
         if(lineBreak % 8 == 0) printf("\n-> ");
         lineBreak++;
         qtd++;
+        pAnt = carro->pai;
         carro = carro->prox;
     }
     double tempo = dist/(vMediaT/qtd);
