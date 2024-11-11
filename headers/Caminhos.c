@@ -228,7 +228,7 @@ CaminhoEntreRodovias(int qtd, int rodovias[qtd], char *origem, char *destino, li
     if(rotaF != NULL) rotaF = rotaF->prox;
     while(rotaF != NULL) {
         InsereCidadeFinal(&roteia, rotaF->cidade, rotaF->pai);
-        auto f = rotaF;
+        lista_cidade f = rotaF;
         rotaF = rotaF->prox;
         free(f);
     }
@@ -280,7 +280,7 @@ lista_cidade EncontraRota(char *origem, char *destino, lista_rodovia cabeca) {
         for(int j = 0; j < qtdRodoviasC2; j++) {
             desvios = bfs(rodoviasC1[i], rodoviasC2[j], cabeca, caminhoRodovia);
             if(desvios) { //retorna o primeiro caminho encontrado
-                auto cam = CaminhoEntreRodovias(desvios, caminhoRodovia, origem,
+                lista_cidade cam = CaminhoEntreRodovias(desvios, caminhoRodovia, origem,
                                                 destino,cabeca);
                 if(cam != NULL) return cam;
             }
